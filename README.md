@@ -12,19 +12,21 @@ Simple Usecases :
 
 * Making a cPing request
 
+```java
 	//get a tcp connection
-	final Channel channel = Channels.connect("localhost", 8009);
-	//will try a cping/cpong exchange on the opened tcp connection
-	boolean success = new CPing(2, TimeUnit.SECONDS).doWithChannel(channel);
-
+	final Channel channel = Channels.connect("localhost", 8009);<br>
+	//will try a cping/cpong exchange on the opened tcp connection<br>
+	boolean success = new CPing(2, TimeUnit.SECONDS).doWithChannel(channel);<br>
+```
 
 * Making a forward request
 
+```java
 	//get a tcp connection
 	final Channel channel = Channels.connect("localhost", 8009);
 	//send a forward request
 	new Forward(ajpRequest, ajpResponse).doWithChannel(channel);
-
+```
 
 * Using a client sockets pool :
 
@@ -34,6 +36,8 @@ Will use a socket channel picked from a pool, allowing the reuse of sockets amon
 
 * The library can be used directly in a servlet container in order to forward requests to another servlet container :
 
+```java
 	HttpServletRequest request = ...
 	HttpServetResponse response = ...
 	new AjpServletProxy.forHost("localhost", 8009).forward(request, response);
+```
