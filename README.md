@@ -7,6 +7,8 @@ This library relies on netty 4.0 and commons-pool2
 
 Licensed under the Apache License, Version 2.0 (see [LICENSE](https://github.com/jrialland/ajp-client/blob/master/LICENSE))
 
+[![Build Status](https://travis-ci.org/jrialland/ajp-client.svg)](https://travis-ci.org/jrialland/ajp-client)
+
 Simple Usecases :
 ------------------
 
