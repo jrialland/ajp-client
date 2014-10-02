@@ -143,6 +143,7 @@
 						</goals>
 						<configuration>
 							<excludes>
+                                <exclude>src/test/resources/logback-test.xml</exclude>
 								<exclude>*.yml</exclude>
 								<exclude>README.md</exclude>
 								<exclude>scripts/*</exclude>
