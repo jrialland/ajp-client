@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<configuration>
+	<appender class="ch.qos.logback.core.ConsoleAppender" name="STDOUT">
+		<encoder>
+			<pattern>%-5level %logger{35} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<logger level="WARN" name="io.netty"/>
+	<root level="DEBUG">
+		<appender-ref ref="STDOUT"/>
+	</root>
+</configuration>
