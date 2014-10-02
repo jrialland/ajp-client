@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import net.jr.ajp.client.AbstractTomcatTest;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -45,6 +46,7 @@ public class TestServletProxy extends AbstractTomcatTest {
 	}
 
 	@Test
+	@Ignore
 	public void testManyTimes() throws Exception {
 		for (int i = 0; i < 100; i++) {
 			doTestGet();
