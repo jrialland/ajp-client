@@ -45,11 +45,12 @@ public class ChannelPoolTest extends AbstractTomcatTest {
 
 			@Override
 			public void beforeRelease(final Channel channel) {
-
+				channel.close();
 			}
 
 			@Override
-			public boolean __doWithChannel(final Channel channel) throws Exception {
+			public boolean __doWithChannel(final Channel channel)
+					throws Exception {
 				System.out.println(channel);
 				return r.nextBoolean();
 			}

@@ -15,7 +15,7 @@ package net.jr.ajp.client.pool;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
@@ -26,7 +26,7 @@ import java.util.concurrent.ThreadFactory;
 
 import net.jr.ajp.client.impl.handlers.Initializer;
 
-public class Channels {
+public final class Channels {
 
 	private Channels() {
 
@@ -44,7 +44,8 @@ public class Channels {
 		}
 	};
 
-	private static NioEventLoopGroup DEFAULT_EVENTLOOP_GROUP = new NioEventLoopGroup(10, THREADFACTORY);
+	private EventLoopGroup eventLoopGroup = new NioEventLoopGroup(Runtime
+			.getRuntime().availableProcessors(), THREADFACTORY);
 
 	private static final Channels instance = new Channels();
 
@@ -52,15 +53,12 @@ public class Channels {
 
 	private int maxConnectionsPerHost = 15;
 
-	protected static ThreadFactory getThreadFactory() {
-		return THREADFACTORY;
-	}
-
 	public static ChannelPool getPool(final String host, final int port) {
 		final String key = host + ":" + port;
 		ChannelPool pool = instance.get(key);
 		if (pool == null) {
-			pool = new ChannelPool(instance, host, port, instance.maxConnectionsPerHost);
+			pool = new ChannelPool(instance, host, port,
+					instance.maxConnectionsPerHost);
 			instance.set(key, pool);
 		}
 		return pool;
@@ -72,6 +70,14 @@ public class Channels {
 
 	public static int getMaxConnectionsPerHost() {
 		return instance.maxConnectionsPerHost;
+	}
+
+	public static void setEventLoopGroup(EventLoopGroup eventLoopGroup) {
+		instance.eventLoopGroup = eventLoopGroup;
+	}
+
+	public static EventLoopGroup getEventLoopGroup() {
+		return instance.eventLoopGroup;
 	}
 
 	protected ChannelPool get(final String key) {
@@ -86,14 +92,22 @@ public class Channels {
 	}
 
 	public static Channel connect(final String host, final int port) {
-		return connect(host, port, DEFAULT_EVENTLOOP_GROUP);
+		return connect(host, port, getEventLoopGroup());
 	}
 
-	public static Channel connect(final String host, final int port, final NioEventLoopGroup eventLoopGroup) {
-		final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).remoteAddress(host, port).channel(NioSocketChannel.class).option(ChannelOption.SO_KEEPALIVE, true).handler(new Initializer());
+	private static Channel connect(final String host, final int port,
+			final EventLoopGroup eventLoopGroup) {
+		final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup)
+				.remoteAddress(host, port).channel(NioSocketChannel.class)
+				.handler(new Initializer());
 		try {
 			final ChannelFuture cf = bootstrap.connect().sync();
-			return cf.channel();
+			Channel channel = cf.channel();
+			if (channel == null) {
+				throw new IllegalStateException();
+			} else {
+				return channel;
+			}
 		} catch (final InterruptedException e) {
 			throw new RuntimeException(e);
 		}

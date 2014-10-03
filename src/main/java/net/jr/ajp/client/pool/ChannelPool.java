@@ -13,7 +13,6 @@
 package net.jr.ajp.client.pool;
 
 import io.netty.channel.Channel;
-import io.netty.channel.nio.NioEventLoopGroup;
 
 import java.util.concurrent.TimeUnit;
 
@@ -31,7 +30,8 @@ import org.slf4j.LoggerFactory;
 
 public class ChannelPool {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ChannelPool.class);
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(ChannelPool.class);
 
 	private static final Logger getLog() {
 		return LOGGER;
@@ -41,8 +41,6 @@ public class ChannelPool {
 
 	int port;
 
-	private final NioEventLoopGroup eventLoopGroup;
-
 	private final GenericObjectPool<Channel> objectPool;
 
 	private final PooledObjectFactory<Channel> factory = new BasePooledObjectFactory<Channel>() {
@@ -50,7 +48,7 @@ public class ChannelPool {
 		@Override
 		public Channel create() throws Exception {
 			getLog().debug("connecting to " + host + ":" + port);
-			final Channel ch = Channels.connect(host, port, eventLoopGroup);
+			final Channel ch = Channels.connect(host, port);
 			return ch;
 		}
 
@@ -60,7 +58,8 @@ public class ChannelPool {
 		}
 
 		@Override
-		public void destroyObject(final PooledObject<Channel> p) throws Exception {
+		public void destroyObject(final PooledObject<Channel> p)
+				throws Exception {
 			final Channel channel = p.getObject();
 			if (channel.isActive()) {
 				channel.close();
@@ -71,7 +70,8 @@ public class ChannelPool {
 		@Override
 		public boolean validateObject(final PooledObject<Channel> p) {
 			try {
-				return new CPingImpl(2, TimeUnit.SECONDS).execute(p.getObject());
+				return new CPingImpl(2, TimeUnit.SECONDS)
+						.execute(p.getObject());
 			} catch (final Exception e) {
 				getLog().warn("could not validate channel", e);
 				return false;
@@ -80,10 +80,10 @@ public class ChannelPool {
 
 	};
 
-	protected ChannelPool(final Channels cp, final String host, final int port, final int maxConnections) {
+	protected ChannelPool(final Channels cp, final String host, final int port,
+			final int maxConnections) {
 		this.host = host;
 		this.port = port;
-		eventLoopGroup = new NioEventLoopGroup(maxConnections, Channels.getThreadFactory());
 		objectPool = new GenericObjectPool<Channel>(factory);
 		if (maxConnections < 1) {
 			throw new IllegalArgumentException("maxConnections must be > 0");
@@ -106,8 +106,11 @@ public class ChannelPool {
 	}
 
 	/**
-	 * Handles channel picking/returning from/to the pool. the 3 methods {@link ChannelCallback#beforeUse(Channel)}, {@link ChannelCallback#__doWithChannel(Channel)} and {@link ChannelCallback#beforeRelease(Channel)} are called in this order on the
-	 * passed callback instance
+	 * Handles channel picking/returning from/to the pool. the 3 methods
+	 * {@link ChannelCallback#beforeUse(Channel)},
+	 * {@link ChannelCallback#__doWithChannel(Channel)} and
+	 * {@link ChannelCallback#beforeRelease(Channel)} are called in this order
+	 * on the passed callback instance
 	 * 
 	 * @param callback
 	 *            a channelcallback
@@ -131,7 +134,9 @@ public class ChannelPool {
 
 		} finally {
 			if (reuse) {
-				getLog().debug("returning channel " + channel + " to the connection pool");
+				getLog().debug(
+						"returning channel " + channel
+								+ " to the connection pool");
 				objectPool.returnObject(channel);
 			} else {
 				getLog().debug("invalidating channel " + channel);
