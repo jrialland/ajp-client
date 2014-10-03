@@ -18,6 +18,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import java.util.concurrent.TimeUnit;
 
 import net.jr.ajp.client.CPing;
+import net.jr.ajp.client.Forward;
+import net.jr.ajp.client.impl.CPingImpl;
 
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
@@ -69,8 +71,9 @@ public class ChannelPool {
 		@Override
 		public boolean validateObject(final PooledObject<Channel> p) {
 			try {
-				return new CPing(2, TimeUnit.SECONDS).doWithChannel(p.getObject());
+				return new CPingImpl(2, TimeUnit.SECONDS).execute(p.getObject());
 			} catch (final Exception e) {
+				getLog().warn("could not validate channel", e);
 				return false;
 			}
 		}
@@ -94,14 +97,38 @@ public class ChannelPool {
 		objectPool.setTimeBetweenEvictionRunsMillis(20000);
 	}
 
-	public void execute(final ChannelCallback callback) throws Exception {
+	public void execute(final Forward forward) throws Exception {
+		execute((ChannelCallback) forward.impl());
+	}
+
+	public void execute(final CPing cping) throws Exception {
+		execute((ChannelCallback) cping.impl());
+	}
+
+	/**
+	 * Handles channel picking/returning from/to the pool. the 3 methods {@link ChannelCallback#beforeUse(Channel)}, {@link ChannelCallback#__doWithChannel(Channel)} and {@link ChannelCallback#beforeRelease(Channel)} are called in this order on the
+	 * passed callback instance
+	 * 
+	 * @param callback
+	 *            a channelcallback
+	 * @throws Exception
+	 */
+	protected void execute(final ChannelCallback callback) throws Exception {
 		getLog().debug("getting channel from the connection pool ...");
 		final Channel channel = objectPool.borrowObject();
 		getLog().debug("... obtained " + channel);
 
 		boolean reuse = false;
 		try {
-			reuse = callback.doWithChannel(channel);
+			callback.beforeUse(channel);
+			reuse = callback.__doWithChannel(channel);
+			try {
+				callback.beforeRelease(channel);
+			} catch (final Exception e) {
+				getLog().warn("while releasing channel", e);
+				reuse = false;
+			}
+
 		} finally {
 			if (reuse) {
 				getLog().debug("returning channel " + channel + " to the connection pool");

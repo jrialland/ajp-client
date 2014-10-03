@@ -55,12 +55,4 @@ public interface ForwardResponse {
 	 * gets the outputstream where the response body will be written
 	 */
 	public OutputStream getOutputStream();
-
-	/**
-	 * called if there is a problem.
-	 * 
-	 * @param e
-	 * @throws Exception
-	 */
-	public void onException(Exception e) throws Exception;
 }

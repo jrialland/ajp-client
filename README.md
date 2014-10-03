@@ -23,7 +23,8 @@ Simple Usecases :
 	//get a tcp connection
 	final Channel channel = Channels.connect("localhost", 8009);
 	//will try a cping/cpong exchange on the opened tcp connection
-	boolean success = new CPing(2, TimeUnit.SECONDS).doWithChannel(channel);
+	boolean success = new CPing(2, TimeUnit.SECONDS).execute(channel);
+  //                                                .execute("localhost", 8009);	
 ```
 
 * Making a forward request
@@ -32,10 +33,8 @@ Simple Usecases :
 	import net.jr.ajp.client.pool.Channels;
 	import net.jr.ajp.client.Forward;
 
-	//get a tcp connection
-	final Channel channel = Channels.connect("localhost", 8009);
 	//send a forward request
-	new Forward(ajpRequest, ajpResponse).doWithChannel(channel);
+	new Forward(ajpRequest, ajpResponse).execute("localhost", 8009);
 	
 ```
 

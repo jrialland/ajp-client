@@ -89,7 +89,7 @@ public class TestForward extends AbstractTomcatTest {
 		request.setRequestUri("/dizzy.mp4");
 
 		final Channel channel = Channels.connect("localhost", getPort());
-		new Forward(request, response).doWithChannel(channel);
+		new Forward(request, response).execute(channel);
 
 		Assert.assertEquals(200, response.getStatusCode());
 		Assert.assertEquals("OK", response.getStatusMessage());
@@ -111,7 +111,7 @@ public class TestForward extends AbstractTomcatTest {
 		request.setRequestUri("/path/to/nonexisting/file.html");
 
 		final Channel channel = Channels.connect("localhost", getPort());
-		new Forward(request, response).doWithChannel(channel);
+		new Forward(request, response).execute(channel);
 
 	}
 
@@ -126,7 +126,7 @@ public class TestForward extends AbstractTomcatTest {
 		request.setRequestUri("/respondError?code=404");
 
 		final Channel channel = Channels.connect("localhost", getPort());
-		new Forward(request, response).doWithChannel(channel);
+		new Forward(request, response).execute(channel);
 	}
 
 	@Test
@@ -136,7 +136,7 @@ public class TestForward extends AbstractTomcatTest {
 
 		request.setRequestUri("/error500");
 		final Channel channel = Channels.connect("localhost", getPort());
-		new Forward(request, response).doWithChannel(channel);
+		new Forward(request, response).execute(channel);
 	}
 
 	@Test
@@ -151,7 +151,7 @@ public class TestForward extends AbstractTomcatTest {
 		request.setRequestBody("Action=GetStatus&SignatureMethod=HmacSHA256&JobId=JOBID&SignatureVersion=2&Version=2010-06-03&Signature=%2FVfkltRBOoSUi1sWxRzN8rw%3D&Timestamp=2011-06-20T22%3A30%3A59.556Z");
 
 		final Channel channel = Channels.connect("localhost", getPort());
-		new Forward(request, response).doWithChannel(channel);
+		new Forward(request, response).execute(channel);
 
 		Assert.assertEquals(200, response.getStatusCode());
 		Assert.assertEquals("OK", response.getStatusMessage());
@@ -171,7 +171,7 @@ public class TestForward extends AbstractTomcatTest {
 		request.addHeader("Content-Length", Long.toString(Files.size(DIZZY_MP4)));
 
 		final Channel channel = Channels.connect("localhost", getPort());
-		new Forward(request, response).doWithChannel(channel);
+		new Forward(request, response).execute(channel);
 
 		Assert.assertEquals(200, response.getStatusCode());
 		Assert.assertEquals("OK", response.getStatusMessage());

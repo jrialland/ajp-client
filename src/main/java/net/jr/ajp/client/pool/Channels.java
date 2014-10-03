@@ -15,8 +15,6 @@ package net.jr.ajp.client.pool;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -26,11 +24,9 @@ import java.util.TreeMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-import net.jr.ajp.client.impl.handlers.ContainerMessageHandler;
+import net.jr.ajp.client.impl.handlers.Initializer;
 
 public class Channels {
-
-	public static final String CONVERSATION_HANDLER_NAME = "ajp-handler";
 
 	private Channels() {
 
@@ -94,18 +90,7 @@ public class Channels {
 	}
 
 	public static Channel connect(final String host, final int port, final NioEventLoopGroup eventLoopGroup) {
-		final Bootstrap bootstrap = new Bootstrap();
-		bootstrap.group(eventLoopGroup);
-		bootstrap.remoteAddress(host, port);
-		bootstrap.channel(NioSocketChannel.class);
-		bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-		bootstrap.handler(new ChannelInitializer<Channel>() {
-			@Override
-			protected void initChannel(final Channel ch) throws Exception {
-				ch.pipeline().addLast(new ContainerMessageHandler());
-				ch.pipeline().addLast(CONVERSATION_HANDLER_NAME, new ChannelInboundHandlerAdapter());
-			}
-		});
+		final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).remoteAddress(host, port).channel(NioSocketChannel.class).option(ChannelOption.SO_KEEPALIVE, true).handler(new Initializer());
 		try {
 			final ChannelFuture cf = bootstrap.connect().sync();
 			return cf.channel();

@@ -31,21 +31,21 @@ public class TestCPing extends AbstractTomcatTest {
 
 	@Test
 	public void testCping() throws Exception {
-		final Channel channel = Channels.connect("localhost", getPort());
-		final boolean pong = new CPing(2, TimeUnit.SECONDS).doWithChannel(channel);
+
+		final boolean pong = new CPing(2, TimeUnit.SECONDS).execute("localhost", getPort());
 		Assert.assertTrue(pong);
 	}
 
 	@Test(expected = UnresolvedAddressException.class)
 	public void testUnknownHost() throws Exception {
 		final Channel channel = Channels.connect("unknownHost", getPort());
-		new CPing(2, TimeUnit.SECONDS).doWithChannel(channel);
+		new CPing(2, TimeUnit.SECONDS).execute(channel);
 	}
 
 	@Test(expected = ConnectException.class)
 	public void testWrongPort() throws Exception {
 		final Channel channel = Channels.connect("localhost", getPort() + 1);
-		new CPing(2, TimeUnit.SECONDS).doWithChannel(channel);
+		new CPing(2, TimeUnit.SECONDS).execute(channel);
 	}
 
 }

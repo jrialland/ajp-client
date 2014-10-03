@@ -31,8 +31,6 @@ public class MockForwardResponse implements ForwardResponse {
 
 	private boolean reuse = false, reachedBodyBegin = false, reachedBodyEnd = false;
 
-	private Exception exception = null;
-
 	private ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 	@Override
@@ -63,11 +61,6 @@ public class MockForwardResponse implements ForwardResponse {
 		return out;
 	}
 
-	@Override
-	public void onException(final Exception e) throws Exception {
-		exception = e;
-	}
-
 	public String getResponseBodyAsString() {
 		return new String(getResponseBodyAsBytes());
 	}
@@ -78,10 +71,6 @@ public class MockForwardResponse implements ForwardResponse {
 
 	public InputStream getResponseBodyAsStream() {
 		return new ByteArrayInputStream(getResponseBodyAsBytes());
-	}
-
-	public void setException(final Exception exception) {
-		this.exception = exception;
 	}
 
 	public void setHeaders(final Map<String, String> headers) {
@@ -102,10 +91,6 @@ public class MockForwardResponse implements ForwardResponse {
 
 	public void setReuse(final boolean reuse) {
 		this.reuse = reuse;
-	}
-
-	public Exception getException() {
-		return exception;
 	}
 
 	public Map<String, String> getHeaders() {

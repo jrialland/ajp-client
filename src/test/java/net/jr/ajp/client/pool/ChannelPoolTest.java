@@ -39,7 +39,17 @@ public class ChannelPoolTest extends AbstractTomcatTest {
 		Channels.getPool("localhost", getPort()).execute(new ChannelCallback() {
 
 			@Override
-			public boolean doWithChannel(final Channel channel) throws Exception {
+			public void beforeUse(final Channel channel) {
+
+			}
+
+			@Override
+			public void beforeRelease(final Channel channel) {
+
+			}
+
+			@Override
+			public boolean __doWithChannel(final Channel channel) throws Exception {
 				System.out.println(channel);
 				return r.nextBoolean();
 			}

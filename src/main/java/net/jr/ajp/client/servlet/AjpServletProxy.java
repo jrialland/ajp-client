@@ -160,11 +160,6 @@ public class AjpServletProxy {
 		}
 
 		@Override
-		public void onException(final Exception e) throws Exception {
-			throw e;
-		}
-
-		@Override
 		public void setHeader(final String headerName, final String value) {
 			response.setHeader(headerName, value);
 		}
