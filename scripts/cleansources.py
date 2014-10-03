@@ -100,6 +100,7 @@ def format_java_files(configfile, path):
 		configfile,
 		os.path.join(path, '*.java')
 	]
+	print cmd
 	subprocess.call(cmd)
 	
 def rglob(rootdir, pattern='*'):
@@ -118,8 +119,10 @@ if __name__ == '__main__':
         for j in rglob(d, '*.java'):
             convert_to_utf8(j)
             replace_java_header(j, newheader)
-            if path_to_eclipse <> None:
-                format_java_files('./etc/eclipse-formatter-config.xml', d)
+            
+            formatter_config = './eclipse-formatter-config.xml'
+            if path_to_eclipse <> None and os.path.isfile(formatter_config):
+                format_java_files(formatter_config, d)
             dos2unix(j)
              
     for xml in rglob(project_dir, '*.xml'):
