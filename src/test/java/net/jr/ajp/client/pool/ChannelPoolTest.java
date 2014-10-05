@@ -27,8 +27,10 @@ import org.junit.Test;
 
 public class ChannelPoolTest extends AbstractTomcatTest {
 
+	private static final int nTasks = 100;
+
 	public ChannelPoolTest() {
-		super(Protocol.Ajp);
+		super(Protocol.Ajp, nTasks);
 	}
 
 	private final Random r = new Random();
@@ -49,8 +51,7 @@ public class ChannelPoolTest extends AbstractTomcatTest {
 			}
 
 			@Override
-			public boolean __doWithChannel(final Channel channel)
-					throws Exception {
+			public boolean __doWithChannel(final Channel channel) throws Exception {
 				System.out.println(channel);
 				return r.nextBoolean();
 			}
@@ -60,8 +61,6 @@ public class ChannelPoolTest extends AbstractTomcatTest {
 
 	@Test
 	public void testMultiple() throws Exception {
-
-		final int N_TASKS = 100;
 
 		final Callable<Exception> task = new Callable<Exception>() {
 			@Override
@@ -76,7 +75,7 @@ public class ChannelPoolTest extends AbstractTomcatTest {
 		};
 
 		final List<Callable<Exception>> tasks = new ArrayList<Callable<Exception>>();
-		for (int i = 0; i < N_TASKS; i++) {
+		for (int i = 0; i < nTasks; i++) {
 			tasks.add(task);
 		}
 

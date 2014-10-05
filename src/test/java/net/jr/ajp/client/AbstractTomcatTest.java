@@ -26,6 +26,8 @@ import java.security.MessageDigest;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +42,7 @@ import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.tomcat.util.threads.ThreadPoolExecutor;
 import org.junit.After;
 import org.junit.Before;
 import org.springframework.mock.web.MockServletConfig;
@@ -57,6 +60,8 @@ public abstract class AbstractTomcatTest {
 
 	private Tomcat tomcat;
 
+	private ThreadPoolExecutor executor;
+	
 	private Path tempDir;
 
 	private final Map<String, Servlet> servlets = new TreeMap<String, Servlet>();
@@ -95,6 +100,19 @@ public abstract class AbstractTomcatTest {
 		}
 	}
 
+	public AbstractTomcatTest(final Protocol protocol, int maxThreads) {
+		this(protocol);
+		executor = new ThreadPoolExecutor(0, maxThreads, 10, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(maxThreads));
+	}
+	
+	public Tomcat getTomcat() {
+		return tomcat;
+	}
+	
+	public Path getTempDir() {
+		return tempDir;
+	}
+	
 	@Before
 	public void before() throws LifecycleException, IOException {
 
@@ -103,8 +121,12 @@ public abstract class AbstractTomcatTest {
 		tomcat.getHost().setAppBase(tempDir.toString());
 		tomcat.getHost().setAutoDeploy(true);
 		tomcat.getHost().setDeployOnStartup(true);
-
+		
 		final Connector connector = new Connector(protocol.getProto());
+		
+		if(executor != null) {
+			connector.setAttribute("executor", executor);
+		}
 		connector.setAttribute("address", "localhost");
 		connector.setPort(0);
 		tomcat.setConnector(connector);
