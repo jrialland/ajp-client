@@ -27,7 +27,7 @@ import org.junit.Test;
 
 public class ChannelPoolTest extends AbstractTomcatTest {
 
-	private static final int nTasks = 100;
+	private static final int nTasks = 20;
 
 	public ChannelPoolTest() {
 		super(Protocol.Ajp, nTasks);
