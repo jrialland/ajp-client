@@ -37,15 +37,21 @@ import org.slf4j.LoggerFactory;
  * @author jrialland
  * 
  */
-public class ContainerMessageHandler extends ReplayingDecoder<Void> implements Constants {
+public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Constants {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ContainerMessageHandler.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AjpMessagesHandler.class);
 
 	private static final Logger getLog() {
 		return LOGGER;
 	}
 
 	private Long expectedBytes = null;
+
+	private AjpMessagesHandlerCallback callback;
+
+	public void setCallback(AjpMessagesHandlerCallback callback) {
+		this.callback = callback;
+	}
 
 	private static enum MessageType {
 		SendBodyChunk(PREFIX_SEND_BODY_CHUNK), SendHeaders(PREFIX_SEND_HEADERS), EndResponse(PREFIX_END_RESPONSE), GetBodyChunk(PREFIX_GET_BODY_CHUNK), CPong(PREFIX_CPONG);
@@ -70,7 +76,7 @@ public class ContainerMessageHandler extends ReplayingDecoder<Void> implements C
 	};
 
 	@Override
-	protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> out) throws Exception {
+	protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> _out) throws Exception {
 
 		// read magic bytes
 		for (final byte element : CONTAINER_MAGIC) {
@@ -97,7 +103,7 @@ public class ContainerMessageHandler extends ReplayingDecoder<Void> implements C
 
 		// CPONG
 		if (prefix == PREFIX_CPONG) {
-			out.add(new CPongMessage());
+			callback.handleCPongMessage(new CPongMessage());
 			return;
 		}
 
@@ -106,7 +112,7 @@ public class ContainerMessageHandler extends ReplayingDecoder<Void> implements C
 			final SendHeadersMessage sbc = readHeaders(in);
 			// store response status and content length;
 			expectedBytes = sbc.getContentLength();
-			out.add(sbc);
+			callback.handleSendHeadersMessage(sbc);
 			return;
 		}
 
@@ -114,7 +120,7 @@ public class ContainerMessageHandler extends ReplayingDecoder<Void> implements C
 		else if (prefix == PREFIX_SEND_BODY_CHUNK) {
 			final int chunkLength = in.readUnsignedShort();
 			if (chunkLength > 0) {
-				out.add(new SendBodyChunkMessage(in.readBytes(chunkLength)));
+				callback.handleSendBodyChunkMessage(new SendBodyChunkMessage(in.readBytes(chunkLength)));
 
 				// update expected bytes counter
 
@@ -123,7 +129,8 @@ public class ContainerMessageHandler extends ReplayingDecoder<Void> implements C
 				}
 			}
 
-			// consume an extra byte, as it seems that there is always a useless 0x00 following data in these packets
+			// consume an extra byte, as it seems that there is always a useless
+			// 0x00 following data in these packets
 			in.readByte();
 			return;
 		}
@@ -132,7 +139,7 @@ public class ContainerMessageHandler extends ReplayingDecoder<Void> implements C
 		else if (prefix == PREFIX_END_RESPONSE) {
 			final boolean reuse = in.readBoolean();
 			final EndResponseMessage err = new EndResponseMessage(reuse);
-			out.add(err);
+			callback.handleEndResponseMessage(err);
 			return;
 		}
 
@@ -140,7 +147,7 @@ public class ContainerMessageHandler extends ReplayingDecoder<Void> implements C
 		else if (prefix == PREFIX_GET_BODY_CHUNK) {
 			final int requestedLength = in.readUnsignedShort();
 			final GetBodyChunkMessage gbr = new GetBodyChunkMessage(requestedLength);
-			out.add(gbr);
+			callback.handleGetBodyChunkMessage(gbr);
 			return;
 		}
 	}

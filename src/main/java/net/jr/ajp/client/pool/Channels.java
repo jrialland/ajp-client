@@ -24,7 +24,7 @@ import java.util.TreeMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-import net.jr.ajp.client.impl.handlers.Initializer;
+import net.jr.ajp.client.impl.handlers.AjpMessagesHandler;
 
 public final class Channels {
 
@@ -44,8 +44,7 @@ public final class Channels {
 		}
 	};
 
-	private EventLoopGroup eventLoopGroup = new NioEventLoopGroup(Runtime
-			.getRuntime().availableProcessors(), THREADFACTORY);
+	private EventLoopGroup eventLoopGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(), THREADFACTORY);
 
 	private static final Channels instance = new Channels();
 
@@ -57,8 +56,7 @@ public final class Channels {
 		final String key = host + ":" + port;
 		ChannelPool pool = instance.get(key);
 		if (pool == null) {
-			pool = new ChannelPool(instance, host, port,
-					instance.maxConnectionsPerHost);
+			pool = new ChannelPool(instance, host, port, instance.maxConnectionsPerHost);
 			instance.set(key, pool);
 		}
 		return pool;
@@ -95,11 +93,8 @@ public final class Channels {
 		return connect(host, port, getEventLoopGroup());
 	}
 
-	private static Channel connect(final String host, final int port,
-			final EventLoopGroup eventLoopGroup) {
-		final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup)
-				.remoteAddress(host, port).channel(NioSocketChannel.class)
-				.handler(new Initializer());
+	private static Channel connect(final String host, final int port, final EventLoopGroup eventLoopGroup) {
+		final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).remoteAddress(host, port).channel(NioSocketChannel.class).handler(new AjpMessagesHandler());
 		try {
 			final ChannelFuture cf = bootstrap.connect().sync();
 			Channel channel = cf.channel();

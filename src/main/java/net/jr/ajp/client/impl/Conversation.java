@@ -17,9 +17,8 @@ import io.netty.channel.ChannelPipeline;
 
 import java.util.concurrent.Semaphore;
 
-import net.jr.ajp.client.impl.handlers.AjpApplicationHandler;
-import net.jr.ajp.client.impl.handlers.AjpApplicationHandlerCallback;
-import net.jr.ajp.client.impl.handlers.Initializer;
+import net.jr.ajp.client.impl.handlers.AjpMessagesHandlerCallback;
+import net.jr.ajp.client.impl.handlers.AjpMessagesHandler;
 import net.jr.ajp.client.impl.messages.CPongMessage;
 import net.jr.ajp.client.impl.messages.EndResponseMessage;
 import net.jr.ajp.client.impl.messages.GetBodyChunkMessage;
@@ -28,7 +27,7 @@ import net.jr.ajp.client.impl.messages.SendHeadersMessage;
 import net.jr.ajp.client.pool.ChannelCallback;
 import net.jr.ajp.client.pool.Channels;
 
-public abstract class Conversation implements ChannelCallback, AjpApplicationHandlerCallback {
+public abstract class Conversation implements ChannelCallback, AjpMessagesHandlerCallback {
 
 	private Semaphore semaphore;
 
@@ -36,7 +35,9 @@ public abstract class Conversation implements ChannelCallback, AjpApplicationHan
 
 	@Override
 	public void beforeUse(final Channel channel) {
-		channel.pipeline().get(AjpApplicationHandler.class).setCallback(this);
+		final ChannelPipeline pipeline = channel.pipeline();
+		AjpMessagesHandler handler = pipeline.get(AjpMessagesHandler.class);
+		handler.setCallback(this);
 		semaphore = new Semaphore(0);
 		currentChannel = channel;
 	}
@@ -55,7 +56,10 @@ public abstract class Conversation implements ChannelCallback, AjpApplicationHan
 
 	@Override
 	public void beforeRelease(final Channel channel) {
-		channel.pipeline().get(AjpApplicationHandler.class).setCallback(null);
+		AjpMessagesHandler handler = channel.pipeline().get(AjpMessagesHandler.class);
+		if (handler != null) {
+			handler.setCallback(null);
+		}
 	}
 
 	@Override
@@ -94,12 +98,10 @@ public abstract class Conversation implements ChannelCallback, AjpApplicationHan
 	}
 
 	public boolean execute(final Channel channel) throws Exception {
-
 		final ChannelPipeline pipeline = channel.pipeline();
-		if (pipeline.get(AjpApplicationHandler.class) == null) {
-			pipeline.addFirst(new Initializer());
+		if (pipeline.get(AjpMessagesHandler.class) == null) {
+			pipeline.addLast(new AjpMessagesHandler());
 		}
-
 		beforeUse(channel);
 		final boolean r = __doWithChannel(channel);
 		beforeRelease(channel);

@@ -18,30 +18,16 @@ import net.jr.ajp.client.impl.messages.GetBodyChunkMessage;
 import net.jr.ajp.client.impl.messages.SendBodyChunkMessage;
 import net.jr.ajp.client.impl.messages.SendHeadersMessage;
 
-public class AjpApplicationCallbackAdapter implements AjpApplicationHandlerCallback {
+public interface AjpMessagesHandlerCallback {
 
-	@Override
-	public void handleCPongMessage(final CPongMessage cPongMessage) throws Exception {
-		// no-op
-	}
+	void handleCPongMessage(CPongMessage cPongMessage) throws Exception;
 
-	@Override
-	public void handleEndResponseMessage(final EndResponseMessage endResponseMessage) throws Exception {
-		// no-op
-	}
+	void handleEndResponseMessage(EndResponseMessage endResponseMessage) throws Exception;
 
-	@Override
-	public void handleGetBodyChunkMessage(final GetBodyChunkMessage getBodyChunkMessage) throws Exception {
-		// no-op
-	}
+	void handleGetBodyChunkMessage(GetBodyChunkMessage getBodyChunkMessage) throws Exception;
 
-	@Override
-	public void handleSendBodyChunkMessage(final SendBodyChunkMessage sendBodyChunkMessage) throws Exception {
-		// no-op
-	}
+	void handleSendBodyChunkMessage(SendBodyChunkMessage sendBodyChunkMessage) throws Exception;
 
-	@Override
-	public void handleSendHeadersMessage(final SendHeadersMessage sendHeadersMessage) throws Exception {
-		// no-op
-	}
+	void handleSendHeadersMessage(SendHeadersMessage sendHeadersMessage) throws Exception;
+
 }
