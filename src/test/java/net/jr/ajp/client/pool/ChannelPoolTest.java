@@ -86,5 +86,4 @@ public class ChannelPoolTest extends AbstractTomcatTest {
 			}
 		}
 	}
-
 }

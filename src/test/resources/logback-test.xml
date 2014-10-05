@@ -5,8 +5,10 @@
 			<pattern>%-5level %logger{35} - %msg%n</pattern>
 		</encoder>
 	</appender>
+	
 	<logger level="WARN" name="io.netty"/>
-	<root level="DEBUG">
+	
+	<root level="WARN">
 		<appender-ref ref="STDOUT"/>
 	</root>
 </configuration>
