@@ -2,7 +2,8 @@
 # -*- Codec: utf-8 -*-
 import sys, os, os.path, codecs, re, fnmatch, subprocess, shutil
 
-project_dir = '../'
+script_dir = os.path.abspath(os.path.dirname(__file__))
+project_dir = os.path.join(script_dir, '..')
 
 path_to_eclipse=None
 if path_to_eclipse is None and 'linux' in sys.platform:
@@ -76,7 +77,6 @@ def to_java_comments(str, isJavadoc=False):
 def replace_java_header(filename, header):
 	with file(filename, 'r') as f:
 		content = f.read()
-	
 	for s in ['package ', 'import ', 'public ', 'protected ', 'class ', 'enum '] :
 		index = -1
 		try :
@@ -90,7 +90,9 @@ def replace_java_header(filename, header):
 			out.close()
 			break
 
-def format_java_files(configfile, path):
+@keep_backup_file
+def format_java_file(javafile, configfile):
+    """ See http://help.eclipse.org/luna/index.jsp?topic=%2Forg.eclipse.jdt.doc.user%2Ftasks%2Ftasks-231.htm """
 	cmd = [
 		path_to_eclipse,
 		'-application',
@@ -98,7 +100,7 @@ def format_java_files(configfile, path):
 		'-verbose',
 		'-config',
 		configfile,
-		os.path.join(path, '*.java')
+		os.path.abspath(javafile)
 	]
 	print cmd
 	subprocess.call(cmd)
@@ -109,20 +111,20 @@ def rglob(rootdir, pattern='*'):
 			yield os.path.join(root, filename)
 
 if __name__ == '__main__':
+
     srcdirs = ['src/main/java', 'src/test/java', 'src/it/java']
     srcdirs = [os.path.join(project_dir, x) for x in srcdirs]
     srcdirs = [x for x in srcdirs if os.path.isdir(x)]
     
-    newheader = file('java_header.txt').read()
+    newheader = file(os.path.join(script_dir, 'java_header.txt')).read()
+    formatter_config = os.path.join(script_dir,'eclipse-formatter-config.xml')
     
     for d in srcdirs:
         for j in rglob(d, '*.java'):
             convert_to_utf8(j)
             replace_java_header(j, newheader)
-            
-            formatter_config = './eclipse-formatter-config.xml'
             if path_to_eclipse <> None and os.path.isfile(formatter_config):
-                format_java_files(formatter_config, d)
+                format_java_file(j, formatter_config)
             dos2unix(j)
              
     for xml in rglob(project_dir, '*.xml'):
