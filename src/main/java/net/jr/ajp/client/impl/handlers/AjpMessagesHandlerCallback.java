@@ -12,22 +12,22 @@
  */
 package net.jr.ajp.client.impl.handlers;
 
-import net.jr.ajp.client.impl.messages.CPongMessage;
-import net.jr.ajp.client.impl.messages.EndResponseMessage;
-import net.jr.ajp.client.impl.messages.GetBodyChunkMessage;
-import net.jr.ajp.client.impl.messages.SendBodyChunkMessage;
-import net.jr.ajp.client.impl.messages.SendHeadersMessage;
+import io.netty.buffer.ByteBuf;
+
+import java.util.Collection;
+
+import net.jr.ajp.client.Header;
 
 public interface AjpMessagesHandlerCallback {
 
-	void handleCPongMessage(CPongMessage cPongMessage) throws Exception;
+	void handleCPongMessage() throws Exception;
 
-	void handleEndResponseMessage(EndResponseMessage endResponseMessage) throws Exception;
+	void handleEndResponseMessage(final boolean reuse) throws Exception;
 
-	void handleGetBodyChunkMessage(GetBodyChunkMessage getBodyChunkMessage) throws Exception;
+	void handleGetBodyChunkMessage(final int requestedLength) throws Exception;
 
-	void handleSendBodyChunkMessage(SendBodyChunkMessage sendBodyChunkMessage) throws Exception;
+	void handleSendBodyChunkMessage(final ByteBuf data) throws Exception;
 
-	void handleSendHeadersMessage(SendHeadersMessage sendHeadersMessage) throws Exception;
+	void handleSendHeadersMessage(int statusCode, String statusMessage, Collection<Header> headers) throws Exception;
 
 }

@@ -12,36 +12,36 @@
  */
 package net.jr.ajp.client.impl.handlers;
 
-import net.jr.ajp.client.impl.messages.CPongMessage;
-import net.jr.ajp.client.impl.messages.EndResponseMessage;
-import net.jr.ajp.client.impl.messages.GetBodyChunkMessage;
-import net.jr.ajp.client.impl.messages.SendBodyChunkMessage;
-import net.jr.ajp.client.impl.messages.SendHeadersMessage;
+import io.netty.buffer.ByteBuf;
+
+import java.util.Collection;
+
+import net.jr.ajp.client.Header;
 
 public class AjpMessagesHandlerCbAdapter implements AjpMessagesHandlerCallback {
 
 	@Override
-	public void handleCPongMessage(final CPongMessage cPongMessage) throws Exception {
+	public void handleCPongMessage() throws Exception {
 		// no-op
 	}
 
 	@Override
-	public void handleEndResponseMessage(final EndResponseMessage endResponseMessage) throws Exception {
+	public void handleEndResponseMessage(final boolean reuse) throws Exception {
 		// no-op
 	}
 
 	@Override
-	public void handleGetBodyChunkMessage(final GetBodyChunkMessage getBodyChunkMessage) throws Exception {
+	public void handleGetBodyChunkMessage(final int requestedLength) throws Exception {
 		// no-op
 	}
 
 	@Override
-	public void handleSendBodyChunkMessage(final SendBodyChunkMessage sendBodyChunkMessage) throws Exception {
+	public void handleSendBodyChunkMessage(final ByteBuf data) throws Exception {
 		// no-op
 	}
 
 	@Override
-	public void handleSendHeadersMessage(final SendHeadersMessage sendHeadersMessage) throws Exception {
+	public void handleSendHeadersMessage(final int statusCode, final String statusMessage, final Collection<Header> headers) throws Exception {
 		// no-op
 	}
 }

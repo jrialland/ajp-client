@@ -21,6 +21,7 @@ import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -32,10 +33,6 @@ import net.jr.ajp.client.ForwardResponse;
 import net.jr.ajp.client.Header;
 import net.jr.ajp.client.impl.enums.RequestHeader;
 import net.jr.ajp.client.impl.enums.RequestMethod;
-import net.jr.ajp.client.impl.messages.EndResponseMessage;
-import net.jr.ajp.client.impl.messages.GetBodyChunkMessage;
-import net.jr.ajp.client.impl.messages.SendBodyChunkMessage;
-import net.jr.ajp.client.impl.messages.SendHeadersMessage;
 import net.jr.ajp.client.pool.ChannelCallback;
 
 import org.slf4j.Logger;
@@ -225,28 +222,26 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 	}
 
 	@Override
-	public void handleSendHeadersMessage(final SendHeadersMessage sendHeadersMessage) {
-		response.setStatus(sendHeadersMessage.getStatusCode(), sendHeadersMessage.getStatusMessage());
-		for (final Header h : sendHeadersMessage.getHeaders()) {
+	public void handleSendHeadersMessage(final int statusCode, final String statusMessage, final Collection<Header> headers) throws Exception {
+		response.setStatus(statusCode, statusMessage);
+		for (final Header h : headers) {
 			response.setHeader(h.getKey(), h.getValue());
 		}
 		response.atResponseBodyBegin();
 	}
 
 	@Override
-	public void handleSendBodyChunkMessage(final SendBodyChunkMessage sendBodyChunkMessage) throws Exception {
-		final ByteBuf data = sendBodyChunkMessage.getData();
+	public void handleSendBodyChunkMessage(final ByteBuf data) throws Exception {
 		data.readBytes(response.getOutputStream(), data.readableBytes());
 	}
 
 	@Override
-	public void handleGetBodyChunkMessage(final GetBodyChunkMessage getBodyChunkMessage) throws Exception {
-		sendChunk(request.getRequestBody(), getBodyChunkMessage.getRequestedLength(), getCurrentChannel());
+	public void handleGetBodyChunkMessage(final int requestedLength) throws Exception {
+		sendChunk(request.getRequestBody(), requestedLength, getCurrentChannel());
 	}
 
 	@Override
-	public void handleEndResponseMessage(final EndResponseMessage endResponseMessage) throws Exception {
-		shouldReuse = endResponseMessage.isReuse();
+	public void handleEndResponseMessage(final boolean reuse) throws Exception {
 		getSemaphore().release();
 	}
 

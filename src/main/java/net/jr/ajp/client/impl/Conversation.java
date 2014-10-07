@@ -12,18 +12,16 @@
  */
 package net.jr.ajp.client.impl;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
 
+import java.util.Collection;
 import java.util.concurrent.Semaphore;
 
-import net.jr.ajp.client.impl.handlers.AjpMessagesHandlerCallback;
+import net.jr.ajp.client.Header;
 import net.jr.ajp.client.impl.handlers.AjpMessagesHandler;
-import net.jr.ajp.client.impl.messages.CPongMessage;
-import net.jr.ajp.client.impl.messages.EndResponseMessage;
-import net.jr.ajp.client.impl.messages.GetBodyChunkMessage;
-import net.jr.ajp.client.impl.messages.SendBodyChunkMessage;
-import net.jr.ajp.client.impl.messages.SendHeadersMessage;
+import net.jr.ajp.client.impl.handlers.AjpMessagesHandlerCallback;
 import net.jr.ajp.client.pool.ChannelCallback;
 import net.jr.ajp.client.pool.Channels;
 
@@ -36,7 +34,7 @@ public abstract class Conversation implements ChannelCallback, AjpMessagesHandle
 	@Override
 	public void beforeUse(final Channel channel) {
 		final ChannelPipeline pipeline = channel.pipeline();
-		AjpMessagesHandler handler = pipeline.get(AjpMessagesHandler.class);
+		final AjpMessagesHandler handler = pipeline.get(AjpMessagesHandler.class);
 		handler.setCallback(this);
 		semaphore = new Semaphore(0);
 		currentChannel = channel;
@@ -56,45 +54,10 @@ public abstract class Conversation implements ChannelCallback, AjpMessagesHandle
 
 	@Override
 	public void beforeRelease(final Channel channel) {
-		AjpMessagesHandler handler = channel.pipeline().get(AjpMessagesHandler.class);
+		final AjpMessagesHandler handler = channel.pipeline().get(AjpMessagesHandler.class);
 		if (handler != null) {
 			handler.setCallback(null);
 		}
-	}
-
-	@Override
-	public boolean __doWithChannel(final Channel channel) throws Exception {
-		throw new UnsupportedOperationException("doWithChannel() is not implemented.");
-
-	}
-
-	@Override
-	public void handleCPongMessage(final CPongMessage cPongMessage) throws Exception {
-		throw new UnsupportedOperationException("handleCPongMessage() is not implemented.");
-
-	}
-
-	@Override
-	public void handleEndResponseMessage(final EndResponseMessage endResponseMessage) throws Exception {
-		throw new UnsupportedOperationException("handleEndResponseMessage() is not implemented.");
-
-	}
-
-	@Override
-	public void handleGetBodyChunkMessage(final GetBodyChunkMessage getBodyChunkMessage) throws Exception {
-		throw new UnsupportedOperationException("handleGetBodyChunkMessage() is not implemented.");
-
-	}
-
-	@Override
-	public void handleSendBodyChunkMessage(final SendBodyChunkMessage sendBodyChunkMessage) throws Exception {
-		throw new UnsupportedOperationException("handleSendBodyChunkMessage() is not implemented.");
-
-	}
-
-	@Override
-	public void handleSendHeadersMessage(final SendHeadersMessage sendHeadersMessage) throws Exception {
-		throw new UnsupportedOperationException("handleSendHeadersMessage() is not implemented.");
 	}
 
 	public boolean execute(final Channel channel) throws Exception {
@@ -115,5 +78,41 @@ public abstract class Conversation implements ChannelCallback, AjpMessagesHandle
 		} finally {
 			channel.close();
 		}
+	}
+
+	@Override
+	public boolean __doWithChannel(final Channel channel) throws Exception {
+		throw new UnsupportedOperationException("__doWithChannel() is not implemented.");
+
+	}
+
+	@Override
+	public void handleCPongMessage() throws Exception {
+		throw new UnsupportedOperationException("handleCPongMessage() is not implemented.");
+
+	}
+
+	@Override
+	public void handleEndResponseMessage(final boolean reuse) throws Exception {
+		throw new UnsupportedOperationException("handleEndResponseMessage() is not implemented.");
+
+	}
+
+	@Override
+	public void handleGetBodyChunkMessage(final int requestedLength) throws Exception {
+		throw new UnsupportedOperationException("handleGetBodyChunkMessage() is not implemented.");
+
+	}
+
+	@Override
+	public void handleSendBodyChunkMessage(final ByteBuf data) throws Exception {
+		throw new UnsupportedOperationException("handleSendBodyChunkMessage() is not implemented.");
+
+	}
+
+	@Override
+	public void handleSendHeadersMessage(final int statusCode, final String statusMessage, final Collection<Header> headers) throws Exception {
+		throw new UnsupportedOperationException("handleSendHeadersMessage() is not implemented.");
+
 	}
 }

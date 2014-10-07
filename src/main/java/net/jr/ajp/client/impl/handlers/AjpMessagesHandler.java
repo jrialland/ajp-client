@@ -16,17 +16,14 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import net.jr.ajp.client.Constants;
+import net.jr.ajp.client.Header;
 import net.jr.ajp.client.impl.enums.ResponseHeader;
-import net.jr.ajp.client.impl.messages.CPongMessage;
-import net.jr.ajp.client.impl.messages.EndResponseMessage;
-import net.jr.ajp.client.impl.messages.GetBodyChunkMessage;
-import net.jr.ajp.client.impl.messages.SendBodyChunkMessage;
-import net.jr.ajp.client.impl.messages.SendHeadersMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +46,7 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 
 	private AjpMessagesHandlerCallback callback;
 
-	public void setCallback(AjpMessagesHandlerCallback callback) {
+	public void setCallback(final AjpMessagesHandlerCallback callback) {
 		this.callback = callback;
 	}
 
@@ -103,16 +100,14 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 
 		// CPONG
 		if (prefix == PREFIX_CPONG) {
-			callback.handleCPongMessage(new CPongMessage());
+			callback.handleCPongMessage();
 			return;
 		}
 
 		// SEND_HEADERS
 		else if (prefix == PREFIX_SEND_HEADERS) {
-			final SendHeadersMessage sbc = readHeaders(in);
 			// store response status and content length;
-			expectedBytes = sbc.getContentLength();
-			callback.handleSendHeadersMessage(sbc);
+			expectedBytes = readHeaders(in);
 			return;
 		}
 
@@ -120,7 +115,7 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 		else if (prefix == PREFIX_SEND_BODY_CHUNK) {
 			final int chunkLength = in.readUnsignedShort();
 			if (chunkLength > 0) {
-				callback.handleSendBodyChunkMessage(new SendBodyChunkMessage(in.readBytes(chunkLength)));
+				callback.handleSendBodyChunkMessage(in.readBytes(chunkLength));
 
 				// update expected bytes counter
 
@@ -138,21 +133,19 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 		// END_RESPONSE
 		else if (prefix == PREFIX_END_RESPONSE) {
 			final boolean reuse = in.readBoolean();
-			final EndResponseMessage err = new EndResponseMessage(reuse);
-			callback.handleEndResponseMessage(err);
+			callback.handleEndResponseMessage(reuse);
 			return;
 		}
 
 		// GET_BODY_CHUNK
 		else if (prefix == PREFIX_GET_BODY_CHUNK) {
 			final int requestedLength = in.readUnsignedShort();
-			final GetBodyChunkMessage gbr = new GetBodyChunkMessage(requestedLength);
-			callback.handleGetBodyChunkMessage(gbr);
+			callback.handleGetBodyChunkMessage(requestedLength);
 			return;
 		}
 	}
 
-	protected SendHeadersMessage readHeaders(final ByteBuf in) {
+	protected Long readHeaders(final ByteBuf in) throws Exception {
 		final int statusCode = in.readUnsignedShort();
 		final String statusMessage = readString(in);
 		final int numHeaders = in.readUnsignedShort();
@@ -161,7 +154,8 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 			getLog().debug(" | HTTP/1.1 " + statusCode + " " + statusMessage);
 		}
 
-		final SendHeadersMessage sbc = new SendHeadersMessage(statusCode, statusMessage);
+		Long expected = null;
+		final List<Header> headers = new ArrayList<Header>(numHeaders);
 
 		for (int i = 0; i < numHeaders; i++) {
 			in.markReaderIndex();
@@ -175,10 +169,13 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 			if (getLog().isDebugEnabled()) {
 				getLog().debug(" | " + headerName + ": " + value);
 			}
-			sbc.addHeader(headerName, value);
+			if (headerName.equalsIgnoreCase("Content-Length")) {
+				expected = Long.parseLong(value);
+			}
+			headers.add(new Header(headerName, value));
 		}
-
-		return sbc;
+		callback.handleSendHeadersMessage(statusCode, statusMessage, headers);
+		return expected;
 	}
 
 	protected String readString(final ByteBuf in) {

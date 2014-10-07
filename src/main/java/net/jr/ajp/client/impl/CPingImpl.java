@@ -18,7 +18,6 @@ import io.netty.channel.Channel;
 import java.util.concurrent.TimeUnit;
 
 import net.jr.ajp.client.Constants;
-import net.jr.ajp.client.impl.messages.CPongMessage;
 import net.jr.ajp.client.pool.ChannelCallback;
 
 import org.slf4j.Logger;
@@ -48,7 +47,7 @@ public class CPingImpl extends Conversation implements ChannelCallback, Constant
 	}
 
 	@Override
-	public void handleCPongMessage(final CPongMessage cPongMessage) {
+	public void handleCPongMessage() {
 		getSemaphore().release();
 	}
 
