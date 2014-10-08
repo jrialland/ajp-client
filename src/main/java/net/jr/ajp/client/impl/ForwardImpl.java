@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see http://tomcat.apache.org/connectors-doc/ajp/ajpv13a.html
  *
- * @author jrialland
+ * @author Julien Rialland <julien.rialland@gmail.com>
  *
  */
 public class ForwardImpl extends Conversation implements ChannelCallback, Constants {

@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 /**
  * for debug purposes, logs in hexadecimal all the frames that we emit.
  *
- * @author jrialland
+ * @author Julien Rialland <julien.rialland@gmail.com>
  *
  */
 public class OutgoingFramesLogger extends ChannelOutboundHandlerAdapter {

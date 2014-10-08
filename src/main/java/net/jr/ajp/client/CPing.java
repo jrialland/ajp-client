@@ -26,7 +26,7 @@ import net.jr.ajp.client.pool.ChannelCallback;
  *
  *
  *
- * @author jrialland
+ * @author Julien Rialland <julien.rialland@gmail.com>
  *
  */
 public class CPing {

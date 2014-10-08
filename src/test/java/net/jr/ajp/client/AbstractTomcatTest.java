@@ -51,7 +51,7 @@ import org.springframework.mock.web.MockServletContext;
 /**
  * To be extended by test cases that need to have a real tomcat running
  * 
- * @author jrialland
+ * @author Julien Rialland <julien.rialland@gmail.com>
  * 
  */
 public abstract class AbstractTomcatTest {

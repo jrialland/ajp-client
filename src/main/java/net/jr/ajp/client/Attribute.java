@@ -16,7 +16,7 @@ package net.jr.ajp.client;
  * ajp13 forward request attributes. these are optional key/values that can be
  * sent with forward requests.
  *
- * @author jrialland
+ * @author Julien Rialland <julien.rialland@gmail.com>
  *
  */
 public enum Attribute {

@@ -23,7 +23,7 @@ import net.jr.ajp.client.pool.ChannelCallback;
 /**
  * forwards a request to a servlet container
  *
- * @author jrialland
+ * @author Julien Rialland <julien.rialland@gmail.com>
  *
  */
 public class Forward {

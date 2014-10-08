@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 /**
  * reads a channel, and interprets incoming messages as ajp13 messages
  *
- * @author jrialland
+ * @author Julien Rialland <julien.rialland@gmail.com>
  *
  */
 public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Constants {

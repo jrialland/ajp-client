@@ -20,7 +20,7 @@ import java.util.TreeMap;
  * common request headers that are recognized by the protocol. these header
  * names are turned into numerical values when sending request
  *
- * @author jrialland
+ * @author Julien Rialland <julien.rialland@gmail.com>
  *
  */
 public enum RequestHeader {

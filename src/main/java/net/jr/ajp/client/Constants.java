@@ -15,7 +15,7 @@ package net.jr.ajp.client;
 /**
  * useful constants about the ajp13 protocol
  *
- * @author jrialland
+ * @author Julien Rialland <julien.rialland@gmail.com>
  *
  */
 public interface Constants {

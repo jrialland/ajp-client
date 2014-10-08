@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * Cping conversation : the client sends a cping message, and the server shall
  * respond with a cpong.
  *
- * @author jrialland
+ * @author Julien Rialland <julien.rialland@gmail.com>
  *
  */
 public class CPingImpl extends Conversation implements ChannelCallback, Constants {

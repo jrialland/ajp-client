@@ -18,7 +18,7 @@ import java.io.OutputStream;
  * interface to implement int order to receive response from the servlet
  * container
  *
- * @author jrialland
+ * @author Julien Rialland <julien.rialland@gmail.com>
  *
  */
 public interface ForwardResponse {

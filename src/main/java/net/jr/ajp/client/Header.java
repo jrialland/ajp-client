@@ -15,7 +15,7 @@ package net.jr.ajp.client;
 /**
  * Just store the key/value pair that forms an http header.
  *
- * @author jrialland
+ * @author Julien Rialland <julien.rialland@gmail.com>
  *
  */
 public class Header {

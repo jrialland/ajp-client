@@ -21,7 +21,7 @@ import java.util.Map;
  * produce a request
  *
  * @see Forward#asyncForward(ForwardRequest, ForwardResponse)
- * @author jrialland
+ * @author Julien Rialland <julien.rialland@gmail.com>
  *
  */
 public interface ForwardRequest {

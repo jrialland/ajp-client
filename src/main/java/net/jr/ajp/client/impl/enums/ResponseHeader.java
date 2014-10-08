@@ -19,7 +19,7 @@ import java.util.TreeMap;
 /**
  * common response headers are associated with numerical codes, too
  *
- * @author jrialland
+ * @author Julien Rialland <julien.rialland@gmail.com>
  *
  */
 public enum ResponseHeader {
