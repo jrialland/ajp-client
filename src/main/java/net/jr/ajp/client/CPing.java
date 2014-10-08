@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,12 +21,13 @@ import net.jr.ajp.client.impl.Conversation;
 import net.jr.ajp.client.pool.ChannelCallback;
 
 /**
- * Cping conversation : the client sends a cping message, and the server shall respond with a cpong.
- * 
- * 
- * 
+ * Cping conversation : the client sends a cping message, and the server shall
+ * respond with a cpong.
+ *
+ *
+ *
  * @author jrialland
- * 
+ *
  */
 public class CPing {
 
@@ -34,7 +35,7 @@ public class CPing {
 
 	/**
 	 * runs the conversation on the given channel
-	 * 
+	 *
 	 * @param channel
 	 *            socket channel connected to a servlet container
 	 * @return true when the container has answered a CPONG
@@ -46,7 +47,7 @@ public class CPing {
 
 	/**
 	 * @see CPing#execute(Channel)
-	 * 
+	 *
 	 * @param host
 	 *            tcp host
 	 * @param port

@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,16 +15,17 @@ package net.jr.ajp.client;
 import java.io.OutputStream;
 
 /**
- * interface to implement int order to receive response from the servlet container
- * 
+ * interface to implement int order to receive response from the servlet
+ * container
+ *
  * @author jrialland
- * 
+ *
  */
 public interface ForwardResponse {
 
 	/**
 	 * http status line
-	 * 
+	 *
 	 * @param code
 	 * @param message
 	 */
@@ -32,7 +33,7 @@ public interface ForwardResponse {
 
 	/**
 	 * response header.
-	 * 
+	 *
 	 * @param headerName
 	 * @param value
 	 */
@@ -45,7 +46,7 @@ public interface ForwardResponse {
 
 	/**
 	 * called the servlet container has finished sending response body
-	 * 
+	 *
 	 * @param reuse
 	 * @throws Exception
 	 */

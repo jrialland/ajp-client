@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,9 +14,9 @@ package net.jr.ajp.client;
 
 /**
  * useful constants about the ajp13 protocol
- * 
+ *
  * @author jrialland
- * 
+ *
  */
 public interface Constants {
 
@@ -24,9 +24,25 @@ public interface Constants {
 
 	public static final int MAX_MESSAGE_SIZE = 8 * 1024;// 8k
 
-	public static final int MAX_RECEIVE_CHUNK_SIZE = MAX_MESSAGE_SIZE - 5; // (5 = magic(2bytes) + packet length(2bytes) + prefix (1byte))
+	public static final int MAX_RECEIVE_CHUNK_SIZE = MAX_MESSAGE_SIZE - 5; // (5
+																			// =
+																			// magic(2bytes)
+																			// +
+																			// packet
+																			// length(2bytes)
+																			// +
+																			// prefix
+																			// (1byte))
 
-	public static final int MAX_SEND_CHUNK_SIZE = MAX_MESSAGE_SIZE - 6; // (6 = magic(2bytes) + packet length(2bytes) + chunk length(2bytes) )
+	public static final int MAX_SEND_CHUNK_SIZE = MAX_MESSAGE_SIZE - 6; // (6 =
+																		// magic(2bytes)
+																		// +
+																		// packet
+																		// length(2bytes)
+																		// +
+																		// chunk
+																		// length(2bytes)
+																		// )
 
 	public static final byte[] CLIENT_MAGIC = new byte[] { 0x12, 0x34 };
 

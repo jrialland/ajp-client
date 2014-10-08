@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,28 +13,20 @@
 package net.jr.ajp.client;
 
 /**
- * ajp13 forward request attributes. these are optional key/values that can be sent with forward requests.
- * 
+ * ajp13 forward request attributes. these are optional key/values that can be
+ * sent with forward requests.
+ *
  * @author jrialland
- * 
+ *
  */
 public enum Attribute {
 
-	//@formatter:off
-		context(0x01),//unused
-		servlet_path(0x02),//unused
-		remote_user(0x03),
-		auth_type(0x04),
-		query_string(0x05),
-		route(0x06),
-		ssl_cert(0x07),
-		ssl_cipher(0x08),
-		ssl_session(0x09),
-		req_attribute(0x0A),
-		ssl_key_size(0x0B),
-		secret(0x0C),
-		stored_method(0x0D);
-	//@formatter:on
+	// @formatter:off
+	context(0x01), // unused
+	servlet_path(0x02), // unused
+	remote_user(0x03), auth_type(0x04), query_string(0x05), route(0x06), ssl_cert(0x07), ssl_cipher(0x08), ssl_session(0x09), req_attribute(
+			0x0A), ssl_key_size(0x0B), secret(0x0C), stored_method(0x0D);
+	// @formatter:on
 
 	private final int code;
 
@@ -47,7 +39,7 @@ public enum Attribute {
 	};
 
 	/**
-	 * 
+	 *
 	 * @param key
 	 *            attribute key
 	 * @return the corresponding code.

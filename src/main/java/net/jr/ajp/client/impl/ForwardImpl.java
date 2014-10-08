@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -40,11 +40,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Forward conversion : the client forwards an http request to server.
- * 
+ *
  * @see http://tomcat.apache.org/connectors-doc/ajp/ajpv13a.html
- * 
+ *
  * @author jrialland
- * 
+ *
  */
 public class ForwardImpl extends Conversation implements ChannelCallback, Constants {
 
@@ -76,8 +76,9 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 	}
 
 	@Override
-	protected void reset() {
+	public void beforeRelease(Channel channel) {
 		shouldReuse = false;
+		super.beforeRelease(channel);
 	}
 
 	@Override
@@ -202,11 +203,19 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 	}
 
 	/**
-	 * A variable-sized string (length bounded by 2^16). Encoded with the length packed into two bytes first, followed by the string (including the terminating '\0'). Note that the encoded length does not include the trailing '\0' -- it is like
-	 * strlen. This is a touch confusing on the Java side, which is littered with odd autoincrement statements to skip over these terminators. I believe the reason this was done was to allow the C code to be extra efficient when reading strings which
-	 * the servlet container is sending back -- with the terminating \0 character, the C code can pass around references into a single buffer, without copying. If the \0 was missing, the C code would have to copy things out in order to get its notion
-	 * of a string. Note a size of -1 (65535) indicates a null string and no data follow the length in this case.
-	 * 
+	 * A variable-sized string (length bounded by 2^16). Encoded with the length
+	 * packed into two bytes first, followed by the string (including the
+	 * terminating '\0'). Note that the encoded length does not include the
+	 * trailing '\0' -- it is like strlen. This is a touch confusing on the Java
+	 * side, which is littered with odd autoincrement statements to skip over
+	 * these terminators. I believe the reason this was done was to allow the C
+	 * code to be extra efficient when reading strings which the servlet
+	 * container is sending back -- with the terminating \0 character, the C
+	 * code can pass around references into a single buffer, without copying. If
+	 * the \0 was missing, the C code would have to copy things out in order to
+	 * get its notion of a string. Note a size of -1 (65535) indicates a null
+	 * string and no data follow the length in this case.
+	 *
 	 * @param s
 	 * @param d
 	 * @throws IOException
@@ -222,7 +231,8 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 	}
 
 	@Override
-	public void handleSendHeadersMessage(final int statusCode, final String statusMessage, final Collection<Header> headers) throws Exception {
+	public void handleSendHeadersMessage(final int statusCode, final String statusMessage, final Collection<Header> headers)
+			throws Exception {
 		response.setStatus(statusCode, statusMessage);
 		for (final Header h : headers) {
 			response.setHeader(h.getKey(), h.getValue());

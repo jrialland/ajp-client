@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,10 +24,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Cping conversation : the client sends a cping message, and the server shall respond with a cpong.
- * 
+ * Cping conversation : the client sends a cping message, and the server shall
+ * respond with a cpong.
+ *
  * @author jrialland
- * 
+ *
  */
 public class CPingImpl extends Conversation implements ChannelCallback, Constants {
 

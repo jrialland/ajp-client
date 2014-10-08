@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,8 +30,7 @@ import org.slf4j.LoggerFactory;
 
 public class ChannelPool {
 
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(ChannelPool.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ChannelPool.class);
 
 	private static final Logger getLog() {
 		return LOGGER;
@@ -58,8 +57,7 @@ public class ChannelPool {
 		}
 
 		@Override
-		public void destroyObject(final PooledObject<Channel> p)
-				throws Exception {
+		public void destroyObject(final PooledObject<Channel> p) throws Exception {
 			final Channel channel = p.getObject();
 			if (channel.isActive()) {
 				channel.close();
@@ -70,8 +68,7 @@ public class ChannelPool {
 		@Override
 		public boolean validateObject(final PooledObject<Channel> p) {
 			try {
-				return new CPingImpl(2, TimeUnit.SECONDS)
-						.execute(p.getObject());
+				return new CPingImpl(2, TimeUnit.SECONDS).execute(p.getObject());
 			} catch (final Exception e) {
 				getLog().warn("could not validate channel", e);
 				return false;
@@ -80,8 +77,7 @@ public class ChannelPool {
 
 	};
 
-	protected ChannelPool(final Channels cp, final String host, final int port,
-			final int maxConnections) {
+	protected ChannelPool(final Channels cp, final String host, final int port, final int maxConnections) {
 		this.host = host;
 		this.port = port;
 		objectPool = new GenericObjectPool<Channel>(factory);
@@ -98,11 +94,11 @@ public class ChannelPool {
 	}
 
 	public void execute(final Forward forward) throws Exception {
-		execute((ChannelCallback) forward.impl());
+		execute(forward.impl());
 	}
 
 	public void execute(final CPing cping) throws Exception {
-		execute((ChannelCallback) cping.impl());
+		execute(cping.impl());
 	}
 
 	/**
@@ -111,7 +107,7 @@ public class ChannelPool {
 	 * {@link ChannelCallback#__doWithChannel(Channel)} and
 	 * {@link ChannelCallback#beforeRelease(Channel)} are called in this order
 	 * on the passed callback instance
-	 * 
+	 *
 	 * @param callback
 	 *            a channelcallback
 	 * @throws Exception
@@ -134,9 +130,7 @@ public class ChannelPool {
 
 		} finally {
 			if (reuse) {
-				getLog().debug(
-						"returning channel " + channel
-								+ " to the connection pool");
+				getLog().debug("returning channel " + channel + " to the connection pool");
 				objectPool.returnObject(channel);
 			} else {
 				getLog().debug("invalidating channel " + channel);

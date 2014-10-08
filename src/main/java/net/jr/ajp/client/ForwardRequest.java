@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,11 +17,12 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * interface to implement when providing the necessary infos that are needeed to produce a request
- * 
+ * interface to implement when providing the necessary infos that are needeed to
+ * produce a request
+ *
  * @see Forward#asyncForward(ForwardRequest, ForwardResponse)
  * @author jrialland
- * 
+ *
  */
 public interface ForwardRequest {
 

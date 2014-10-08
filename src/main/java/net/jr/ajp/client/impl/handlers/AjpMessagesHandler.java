@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,6 +13,7 @@
 package net.jr.ajp.client.impl.handlers;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ReplayingDecoder;
 
@@ -30,9 +31,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * reads a channel, and interprets incoming messages as ajp13 messages
- * 
+ *
  * @author jrialland
- * 
+ *
  */
 public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Constants {
 
@@ -44,14 +45,9 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 
 	private Long expectedBytes = null;
 
-	private AjpMessagesHandlerCallback callback;
-
-	public void setCallback(final AjpMessagesHandlerCallback callback) {
-		this.callback = callback;
-	}
-
 	private static enum MessageType {
-		SendBodyChunk(PREFIX_SEND_BODY_CHUNK), SendHeaders(PREFIX_SEND_HEADERS), EndResponse(PREFIX_END_RESPONSE), GetBodyChunk(PREFIX_GET_BODY_CHUNK), CPong(PREFIX_CPONG);
+		SendBodyChunk(PREFIX_SEND_BODY_CHUNK), SendHeaders(PREFIX_SEND_HEADERS), EndResponse(PREFIX_END_RESPONSE), GetBodyChunk(
+				PREFIX_GET_BODY_CHUNK), CPong(PREFIX_CPONG);
 
 		private final int code;
 
@@ -71,6 +67,10 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 			this.code = code;
 		}
 	};
+
+	protected AjpMessagesHandlerCallback getCallback(Channel chann) {
+		return chann.attr(AjpMessagesHandlerCallback.CHANNEL_ATTR).get();
+	}
 
 	@Override
 	protected void decode(final ChannelHandlerContext ctx, final ByteBuf in, final List<Object> _out) throws Exception {
@@ -100,14 +100,14 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 
 		// CPONG
 		if (prefix == PREFIX_CPONG) {
-			callback.handleCPongMessage();
+			getCallback(ctx.channel()).handleCPongMessage();
 			return;
 		}
 
 		// SEND_HEADERS
 		else if (prefix == PREFIX_SEND_HEADERS) {
 			// store response status and content length;
-			expectedBytes = readHeaders(in);
+			expectedBytes = readHeaders(ctx, in);
 			return;
 		}
 
@@ -115,7 +115,7 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 		else if (prefix == PREFIX_SEND_BODY_CHUNK) {
 			final int chunkLength = in.readUnsignedShort();
 			if (chunkLength > 0) {
-				callback.handleSendBodyChunkMessage(in.readBytes(chunkLength));
+				getCallback(ctx.channel()).handleSendBodyChunkMessage(in.readBytes(chunkLength));
 
 				// update expected bytes counter
 
@@ -133,19 +133,19 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 		// END_RESPONSE
 		else if (prefix == PREFIX_END_RESPONSE) {
 			final boolean reuse = in.readBoolean();
-			callback.handleEndResponseMessage(reuse);
+			getCallback(ctx.channel()).handleEndResponseMessage(reuse);
 			return;
 		}
 
 		// GET_BODY_CHUNK
 		else if (prefix == PREFIX_GET_BODY_CHUNK) {
 			final int requestedLength = in.readUnsignedShort();
-			callback.handleGetBodyChunkMessage(requestedLength);
+			getCallback(ctx.channel()).handleGetBodyChunkMessage(requestedLength);
 			return;
 		}
 	}
 
-	protected Long readHeaders(final ByteBuf in) throws Exception {
+	protected Long readHeaders(ChannelHandlerContext ctx, final ByteBuf in) throws Exception {
 		final int statusCode = in.readUnsignedShort();
 		final String statusMessage = readString(in);
 		final int numHeaders = in.readUnsignedShort();
@@ -174,7 +174,7 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 			}
 			headers.add(new Header(headerName, value));
 		}
-		callback.handleSendHeadersMessage(statusCode, statusMessage, headers);
+		getCallback(ctx.channel()).handleSendHeadersMessage(statusCode, statusMessage, headers);
 		return expected;
 	}
 

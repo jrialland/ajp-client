@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,15 +33,9 @@ public abstract class Conversation implements ChannelCallback, AjpMessagesHandle
 
 	@Override
 	public void beforeUse(final Channel channel) {
-		final ChannelPipeline pipeline = channel.pipeline();
-		final AjpMessagesHandler handler = pipeline.get(AjpMessagesHandler.class);
-		handler.setCallback(this);
+		channel.attr(AjpMessagesHandlerCallback.CHANNEL_ATTR).set(this);
 		semaphore = new Semaphore(0);
 		currentChannel = channel;
-	}
-
-	protected void reset() {
-
 	}
 
 	protected Semaphore getSemaphore() {
@@ -54,10 +48,7 @@ public abstract class Conversation implements ChannelCallback, AjpMessagesHandle
 
 	@Override
 	public void beforeRelease(final Channel channel) {
-		final AjpMessagesHandler handler = channel.pipeline().get(AjpMessagesHandler.class);
-		if (handler != null) {
-			handler.setCallback(null);
-		}
+		channel.attr(AjpMessagesHandlerCallback.CHANNEL_ATTR).set(null);
 	}
 
 	public boolean execute(final Channel channel) throws Exception {
@@ -111,7 +102,8 @@ public abstract class Conversation implements ChannelCallback, AjpMessagesHandle
 	}
 
 	@Override
-	public void handleSendHeadersMessage(final int statusCode, final String statusMessage, final Collection<Header> headers) throws Exception {
+	public void handleSendHeadersMessage(final int statusCode, final String statusMessage, final Collection<Header> headers)
+					throws Exception {
 		throw new UnsupportedOperationException("handleSendHeadersMessage() is not implemented.");
 
 	}

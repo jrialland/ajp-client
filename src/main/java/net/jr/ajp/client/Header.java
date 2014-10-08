@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,16 +13,16 @@
 package net.jr.ajp.client;
 
 /**
- * just store the key/value pair that forms an http header.
- * 
+ * Just store the key/value pair that forms an http header.
+ *
  * @author jrialland
- * 
+ *
  */
 public class Header {
 
-	private String key;
+	private final String key;
 
-	private String value;
+	private final String value;
 
 	public Header(final String key, final String value) {
 		super();
@@ -34,20 +34,8 @@ public class Header {
 		return key;
 	}
 
-	public void setKey(final String key) {
-		this.key = key;
-	}
-
 	public String getValue() {
 		return value;
-	}
-
-	public void setValue(final String value) {
-		this.value = value;
-	}
-
-	public Integer toCode() {
-		return null;
 	}
 
 	@Override

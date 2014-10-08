@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -94,10 +94,11 @@ public final class Channels {
 	}
 
 	private static Channel connect(final String host, final int port, final EventLoopGroup eventLoopGroup) {
-		final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).remoteAddress(host, port).channel(NioSocketChannel.class).handler(new AjpMessagesHandler());
+		final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).remoteAddress(host, port).channel(NioSocketChannel.class)
+				.handler(new AjpMessagesHandler());
 		try {
 			final ChannelFuture cf = bootstrap.connect().sync();
-			Channel channel = cf.channel();
+			final Channel channel = cf.channel();
 			if (channel == null) {
 				throw new IllegalStateException();
 			} else {

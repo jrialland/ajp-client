@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,9 +22,9 @@ import net.jr.ajp.client.pool.ChannelCallback;
 
 /**
  * forwards a request to a servlet container
- * 
+ *
  * @author jrialland
- * 
+ *
  */
 public class Forward {
 
@@ -32,10 +32,11 @@ public class Forward {
 
 	/**
 	 * runs the conversation on the given channel
-	 * 
+	 *
 	 * @param channel
 	 *            socket channel connected to a servlet container
-	 * @return true when the container allow use to reuse the same socket for the next conversation
+	 * @return true when the container allow use to reuse the same socket for
+	 *         the next conversation
 	 * @throws Exception
 	 */
 	public boolean execute(final Channel channel) throws Exception {
@@ -44,12 +45,13 @@ public class Forward {
 
 	/**
 	 * @see Forward#execute(Channel)
-	 * 
+	 *
 	 * @param host
 	 *            tcp host
 	 * @param port
 	 *            tcp port
-	 * @return true when the container allow use to reuse the same socket for the next conversation
+	 * @return true when the container allow use to reuse the same socket for
+	 *         the next conversation
 	 * @throws Exception
 	 */
 	public boolean execute(final String host, final int port) throws Exception {

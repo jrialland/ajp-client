@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,9 +24,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * for debug purposes, logs in hexadecimal all the frames that we emit.
- * 
+ *
  * @author jrialland
- * 
+ *
  */
 public class OutgoingFramesLogger extends ChannelOutboundHandlerAdapter {
 
