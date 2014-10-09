@@ -15,8 +15,8 @@ Simple Usecases :
 * Making a cPing request
 
 ```java
-	import net.jr.ajp.client.pool.Channels;
-	import net.jr.ajp.client.CPing;
+	import com.github.jrialland.apclient.pool.Channels;
+	import com.github.jrialland.apclient.CPing;
 
 	...
 
@@ -30,8 +30,8 @@ Simple Usecases :
 * Making a forward request
 
 ```java
-	import net.jr.ajp.client.pool.Channels;
-	import net.jr.ajp.client.Forward;
+	import com.github.jrialland.apclient.pool.Channels;
+	import com.github.jrialland.apclient.Forward;
 
 	//send a forward request
 	new Forward(ajpRequest, ajpResponse).execute("localhost", 8009);
@@ -43,8 +43,8 @@ Simple Usecases :
 Socket pools handle the creation and destruction of multiple connections automatically.
 
 ```java
-	import net.jr.ajp.client.pool.Channels;
-	import net.jr.ajp.client.Forward;
+	import com.github.jrialland.apclient.pool.Channels;
+	import com.github.jrialland.apclient.Forward;
 	
 	Channels.getPool("localhost", 8009).execute(new Forward(ajpRequest, ajpResponse));
 	
@@ -56,7 +56,7 @@ Will use a socket channel picked from a pool, allowing the reuse of sockets amon
 ```java
 	import javax.servlet.http.HttpServletRequest;
 	import javax.servlet.http.HttpServletResponse;
-	import net.jr.ajp.client.servlet.AjpServletProxy;
+	import com.github.jrialland.apclient.servlet.AjpServletProxy;
 	
 	HttpServletRequest request = ...
 	HttpServetResponse response = ...

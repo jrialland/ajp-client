@@ -2,7 +2,7 @@
 # -*- Codec: utf-8 -*-
 import sys, os, os.path, codecs, re, fnmatch, subprocess, shutil
 
-script_dir = os.path.abspath(os.path.dirname(__file__))
+script_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 project_dir = os.path.join(script_dir, '..')
 
 path_to_eclipse=None
@@ -92,19 +92,19 @@ def replace_java_header(filename, header):
 
 @keep_backup_file
 def format_java_file(javafile, configfile):
-    """ See http://help.eclipse.org/luna/index.jsp?topic=%2Forg.eclipse.jdt.doc.user%2Ftasks%2Ftasks-231.htm """
-	cmd = [
-		path_to_eclipse,
-		'-application',
-		'org.eclipse.jdt.core.JavaCodeFormatter',
-		'-verbose',
-		'-config',
-		configfile,
-		os.path.abspath(javafile)
-	]
-	print cmd
-	subprocess.call(cmd)
-	
+  """ See http://help.eclipse.org/luna/index.jsp?topic=%2Forg.eclipse.jdt.doc.user%2Ftasks%2Ftasks-231.htm """
+  cmd = [
+    path_to_eclipse,
+    '-application',
+    'org.eclipse.jdt.core.JavaCodeFormatter',
+    '-verbose',
+    '-config',
+    configfile,
+    os.path.abspath(javafile)
+  ]
+  print cmd
+  subprocess.call(cmd)
+
 def rglob(rootdir, pattern='*'):
 	for root, dirnames, filenames in os.walk(rootdir):
 		for filename in fnmatch.filter(filenames, pattern):
