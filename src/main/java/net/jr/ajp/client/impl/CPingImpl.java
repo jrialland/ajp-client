@@ -20,9 +20,6 @@ import java.util.concurrent.TimeUnit;
 import net.jr.ajp.client.Constants;
 import net.jr.ajp.client.pool.ChannelCallback;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Cping conversation : the client sends a cping message, and the server shall
  * respond with a cpong.
@@ -31,12 +28,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class CPingImpl extends Conversation implements ChannelCallback, Constants {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(CPingImpl.class);
-
-	private static final Logger getLog() {
-		return LOGGER;
-	}
 
 	private final long timeout;
 

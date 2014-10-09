@@ -35,9 +35,6 @@ import net.jr.ajp.client.impl.enums.RequestHeader;
 import net.jr.ajp.client.impl.enums.RequestMethod;
 import net.jr.ajp.client.pool.ChannelCallback;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Forward conversion : the client forwards an http request to server.
  *
@@ -47,12 +44,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class ForwardImpl extends Conversation implements ChannelCallback, Constants {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(ForwardImpl.class);
-
-	private static final Logger getLog() {
-		return LOGGER;
-	}
 
 	private final ForwardRequest request;
 

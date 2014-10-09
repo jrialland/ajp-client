@@ -15,6 +15,7 @@ package net.jr.ajp.client.pool;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -25,8 +26,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 import net.jr.ajp.client.impl.handlers.AjpMessagesHandler;
+import net.jr.ajp.client.impl.handlers.OutgoingFramesLogger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class Channels {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Channels.class);
+
+	public static Logger getLog() {
+		return LOGGER;
+	}
 
 	private Channels() {
 
@@ -95,7 +106,15 @@ public final class Channels {
 
 	private static Channel connect(final String host, final int port, final EventLoopGroup eventLoopGroup) {
 		final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).remoteAddress(host, port).channel(NioSocketChannel.class)
-				.handler(new AjpMessagesHandler());
+				.handler(new ChannelInitializer<Channel>() {
+					@Override
+					protected void initChannel(Channel channel) throws Exception {
+						if (getLog().isTraceEnabled()) {
+							channel.pipeline().addLast(new OutgoingFramesLogger());
+						}
+						channel.pipeline().addLast(new AjpMessagesHandler());
+					}
+				});
 		try {
 			final ChannelFuture cf = bootstrap.connect().sync();
 			final Channel channel = cf.channel();

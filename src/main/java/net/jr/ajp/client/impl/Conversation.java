@@ -22,10 +22,20 @@ import java.util.concurrent.Semaphore;
 import net.jr.ajp.client.Header;
 import net.jr.ajp.client.impl.handlers.AjpMessagesHandler;
 import net.jr.ajp.client.impl.handlers.AjpMessagesHandlerCallback;
+import net.jr.ajp.client.impl.handlers.OutgoingFramesLogger;
 import net.jr.ajp.client.pool.ChannelCallback;
 import net.jr.ajp.client.pool.Channels;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class Conversation implements ChannelCallback, AjpMessagesHandlerCallback {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Conversation.class);
+
+	public static Logger getLog() {
+		return LOGGER;
+	}
 
 	private Semaphore semaphore;
 
@@ -53,6 +63,9 @@ public abstract class Conversation implements ChannelCallback, AjpMessagesHandle
 
 	public boolean execute(final Channel channel) throws Exception {
 		final ChannelPipeline pipeline = channel.pipeline();
+		if (getLog().isTraceEnabled() && pipeline.get(OutgoingFramesLogger.class) == null) {
+			pipeline.addLast(new OutgoingFramesLogger());
+		}
 		if (pipeline.get(AjpMessagesHandler.class) == null) {
 			pipeline.addLast(new AjpMessagesHandler());
 		}
@@ -103,7 +116,7 @@ public abstract class Conversation implements ChannelCallback, AjpMessagesHandle
 
 	@Override
 	public void handleSendHeadersMessage(final int statusCode, final String statusMessage, final Collection<Header> headers)
-					throws Exception {
+			throws Exception {
 		throw new UnsupportedOperationException("handleSendHeadersMessage() is not implemented.");
 
 	}
