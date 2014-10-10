@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -50,9 +50,9 @@ import org.springframework.mock.web.MockServletContext;
 
 /**
  * To be extended by test cases that need to have a real tomcat running
- * 
+ *
  * @author Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  */
 public abstract class AbstractTomcatTest {
 
@@ -61,7 +61,7 @@ public abstract class AbstractTomcatTest {
 	private Tomcat tomcat;
 
 	private ThreadPoolExecutor executor;
-	
+
 	private Path tempDir;
 
 	private final Map<String, Servlet> servlets = new TreeMap<String, Servlet>();
@@ -87,7 +87,7 @@ public abstract class AbstractTomcatTest {
 	private final Protocol protocol;
 
 	/**
-	 * 
+	 *
 	 * @param protocol
 	 *            wether to serve http or ajp
 	 */
@@ -100,19 +100,19 @@ public abstract class AbstractTomcatTest {
 		}
 	}
 
-	public AbstractTomcatTest(final Protocol protocol, int maxThreads) {
+	public AbstractTomcatTest(final Protocol protocol, final int maxThreads) {
 		this(protocol);
 		executor = new ThreadPoolExecutor(0, maxThreads, 10, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(maxThreads));
 	}
-	
+
 	public Tomcat getTomcat() {
 		return tomcat;
 	}
-	
+
 	public Path getTempDir() {
 		return tempDir;
 	}
-	
+
 	@Before
 	public void before() throws LifecycleException, IOException {
 
@@ -121,10 +121,10 @@ public abstract class AbstractTomcatTest {
 		tomcat.getHost().setAppBase(tempDir.toString());
 		tomcat.getHost().setAutoDeploy(true);
 		tomcat.getHost().setDeployOnStartup(true);
-		
+
 		final Connector connector = new Connector(protocol.getProto());
-		
-		if(executor != null) {
+
+		if (executor != null) {
 			connector.setAttribute("executor", executor);
 		}
 		connector.setAttribute("address", "localhost");
@@ -143,10 +143,13 @@ public abstract class AbstractTomcatTest {
 	}
 
 	/**
-	 * binds a servlet on the tomcat instance. the 'mapping' has the same format that the 'servlet-mapping' parameter in web.xml. the path of the servlet will be relative to /
-	 * 
-	 * {@link Servlet#init(javax.servlet.ServletConfig)} is called with a mock object as parameter.
-	 * 
+	 * binds a servlet on the tomcat instance. the 'mapping' has the same format
+	 * that the 'servlet-mapping' parameter in web.xml. the path of the servlet
+	 * will be relative to /
+	 *
+	 * {@link Servlet#init(javax.servlet.ServletConfig)} is called with a mock
+	 * object as parameter.
+	 *
 	 * @param mapping
 	 * @param servlet
 	 */
