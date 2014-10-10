@@ -1,3 +1,9 @@
 language: java
 jdk: openjdk7
-script: mvn deploy
+script: mvn deploy --settings travis-settings.xml
+
+env:
+  global:
+    - secure: "K4ZVzEm+r/LWRJfgCAkZq4hH+9kmPVmhRnFRl+9yjxYWFIPcqMykN+VVHRZsKO2kyVLD195p7fBW5sbYDH5A4OSTWyBnBt1hamKLJkdpVcclBWi9EjBd/LXkr2jeFlJGPQFVQeJIkywdalEa6cuFtVD6v6H7PWAKh2xdpljF6xU="
+    - secure: "Lc5LkBBKTHyUHDbYALO0VWFmO58d3qcLueAbabqgUxuGbBnJ6HgPWxlh9qik/eWZmRPebRmNGdoAqT96MICq7qSJ1JdCCZLJwzsqZ47QUX/ki/C3NhgyDhaFsTbdbKxJOzVkWZSQR05/LTG3+H3NLKpWZ2xDlVJzct9JeQMSpC4="
+
