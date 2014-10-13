@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,17 +29,29 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.jrialland.ajpclient.Attribute;
 import com.github.jrialland.ajpclient.Forward;
 import com.github.jrialland.ajpclient.ForwardRequest;
 import com.github.jrialland.ajpclient.ForwardResponse;
 import com.github.jrialland.ajpclient.Header;
+import com.github.jrialland.ajpclient.impl.enums.RequestMethod;
 import com.github.jrialland.ajpclient.pool.ChannelPool;
 import com.github.jrialland.ajpclient.pool.Channels;
 
 public class AjpServletProxy {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(AjpServletProxy.class);
+
+	public static Logger getLog() {
+		return LOGGER;
+	}
+
 	private static class RequestWrapper implements ForwardRequest {
+
+		private RequestMethod requestMethod;
 
 		private final HttpServletRequest request;
 
@@ -57,10 +69,40 @@ public class AjpServletProxy {
 			in = request.getInputStream();
 			requestUrl = new URL(request.getRequestURL().toString());
 
+			requestMethod = RequestMethod.forMethod(request.getMethod());
+			if (requestMethod == null) {
+				requestMethod = RequestMethod.JK_STORED;
+				attributes.put(Attribute.stored_method, request.getMethod());
+			}
+
+			boolean hasContentLength = false;
+			boolean hasContentType = false;
 			for (final String headerName : Collections.list(request.getHeaderNames())) {
+				if (headerName.equals("Content-Length")) {
+					hasContentLength = true;
+				} else if (headerName.equals("Content-Type")) {
+					hasContentType = true;
+				}
 				for (final String value : Collections.list(request.getHeaders(headerName))) {
 					headers.add(new Header(headerName, value));
 				}
+			}
+
+			if (!hasContentLength && request.getContentLength() > -1) {
+				headers.add(new Header("Content-Length", Long.toString(request.getContentLengthLong())));
+			}
+
+			// RFC2616 : Any HTTP/1.1 message containing an entity-body SHOULD
+			// include a Content-Type header field defining the media type of
+			// that body. If and only if the media type is not given by a
+			// Content-Type field, the recipient MAY attempt to guess the media
+			// type via inspection of its content and/or the name extension(s)
+			// of the URI used to identify the resource. If the media type
+			// remains unknown, the recipient SHOULD treat it as type
+			// "application/octet-stream".
+			if (!hasContentType && requestMethod.equals(RequestMethod.POST)) {
+				getLog().warn("POST request without a Content-Type -- Defaulting to 'application/x-www-form-urlencoded'");
+				headers.add(new Header("Content-Type", "application/x-www-form-urlencoded"));
 			}
 
 			if (request.getQueryString() != null) {
@@ -70,11 +112,13 @@ public class AjpServletProxy {
 			if (request.getRemoteUser() != null) {
 				attributes.put(Attribute.remote_user, request.getRemoteUser());
 			}
+
+			attributes.put(Attribute.servlet_path, request.getServletPath());
 		}
 
 		@Override
-		public String getMethod() {
-			return request.getMethod();
+		public RequestMethod getMethod() {
+			return requestMethod;
 		}
 
 		@Override
@@ -110,11 +154,6 @@ public class AjpServletProxy {
 		@Override
 		public Collection<Header> getHeaders() {
 			return headers;
-		}
-
-		@Override
-		public String getHeader(final String headerName) {
-			return request.getHeader(headerName);
 		}
 
 		@Override

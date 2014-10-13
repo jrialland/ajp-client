@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,8 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 
+import com.github.jrialland.ajpclient.impl.enums.RequestMethod;
+
 /**
  * interface to implement when providing the necessary infos that are needeed to
  * produce a request
@@ -26,7 +28,7 @@ import java.util.Map;
  */
 public interface ForwardRequest {
 
-	String getMethod();
+	RequestMethod getMethod();
 
 	String getProtocol();
 
@@ -43,8 +45,6 @@ public interface ForwardRequest {
 	int getServerPort();
 
 	Collection<Header> getHeaders();
-
-	String getHeader(String headerName);
 
 	Map<Attribute, String> getAttributes();
 

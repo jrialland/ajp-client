@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,10 +23,11 @@ import java.util.TreeMap;
 import com.github.jrialland.ajpclient.Attribute;
 import com.github.jrialland.ajpclient.ForwardRequest;
 import com.github.jrialland.ajpclient.Header;
+import com.github.jrialland.ajpclient.impl.enums.RequestMethod;
 
 public class MockForwardRequest implements ForwardRequest {
 
-	private String method = "GET";
+	private RequestMethod method = RequestMethod.GET;
 
 	private String protocol = "HTTP/1.1";
 
@@ -49,12 +50,20 @@ public class MockForwardRequest implements ForwardRequest {
 	private InputStream requestBody;
 
 	@Override
-	public String getMethod() {
+	public RequestMethod getMethod() {
 		return method;
 	}
 
-	public void setMethod(final String method) {
+	public void setMethod(final RequestMethod method) {
 		this.method = method;
+	}
+
+	public void setMethod(final String method) {
+		this.method = RequestMethod.forMethod(method);
+		if (this.method == null) {
+			this.method = RequestMethod.JK_STORED;
+			attributes.put(Attribute.stored_method, method);
+		}
 	}
 
 	@Override
@@ -147,17 +156,6 @@ public class MockForwardRequest implements ForwardRequest {
 		this.remoteHost = remoteHost;
 	}
 
-	@Override
-	public String getHeader(String header) {
-		header = header.toLowerCase().trim();
-		for (final Header h : headers) {
-			if (h.getKey().equalsIgnoreCase(header)) {
-				return h.getValue();
-			}
-		}
-		return null;
-	}
-
 	public void addHeader(final String headerName, final String value) {
 		getHeaders().add(new Header(headerName, value));
 	}
@@ -168,7 +166,6 @@ public class MockForwardRequest implements ForwardRequest {
 
 	@Override
 	public boolean isSsl() {
-		// TODO Auto-generated method stub
-		return false;
+		return ssl;
 	}
 }

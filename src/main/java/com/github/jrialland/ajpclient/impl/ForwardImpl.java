@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,7 +32,6 @@ import com.github.jrialland.ajpclient.ForwardRequest;
 import com.github.jrialland.ajpclient.ForwardResponse;
 import com.github.jrialland.ajpclient.Header;
 import com.github.jrialland.ajpclient.impl.enums.RequestHeader;
-import com.github.jrialland.ajpclient.impl.enums.RequestMethod;
 import com.github.jrialland.ajpclient.pool.ChannelCallback;
 
 /**
@@ -67,7 +66,7 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 	}
 
 	@Override
-	public void beforeRelease(Channel channel) {
+	public void beforeRelease(final Channel channel) {
 		shouldReuse = false;
 		super.beforeRelease(channel);
 	}
@@ -86,14 +85,21 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 	}
 
 	protected static void checkRequest(final ForwardRequest request) {
+
+		String contentLength = null;
+		String transferEncoding = null;
+		for (final Header h : request.getHeaders()) {
+			if (h.getKey().equalsIgnoreCase("Content-Length")) {
+				contentLength = h.getValue();
+			} else if (h.getKey().equalsIgnoreCase("Transfer-Encoding")) {
+				transferEncoding = h.getValue();
+			}
+		}
+
 		if (request.getMethod().equals("POST")) {
-			final String contentLength = request.getHeader("Content-Length");
 			if (contentLength == null) {
-
-				final String transferEncoding = request.getHeader("Transfer-Encoding");
 				if (transferEncoding == null || !transferEncoding.equals("chunked")) {
-					throw new IllegalArgumentException("POST Requests without a Content-Length header are prohibited");
-
+					getLog().warn("POST request without a Content-Length");
 				}
 			} else if (!contentLength.matches("[0-9]+$")) {
 				throw new IllegalArgumentException("Content-Length header is not a valid number");
@@ -111,7 +117,7 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 		tmp.writeByte(PREFIX_FORWARD_REQUEST);
 
 		// payload
-		tmp.writeByte(RequestMethod.getCodeForMethod(request.getMethod()));
+		tmp.writeByte(request.getMethod().getCode());
 		writeString(request.getProtocol(), tmp);
 		writeString(request.getRequestUri(), tmp);
 		writeString(request.getRemoteAddress(), tmp);
@@ -151,26 +157,22 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 
 		channel.writeAndFlush(buf);
 		getLog().debug("Sent : FORWARDREQUEST (" + PREFIX_FORWARD_REQUEST + "), payload size = " + data.length + " bytes");
-		// see if we have to send a chunk
-		final String strContentLength = request.getHeader("Content-Length");
-		if (strContentLength != null) {
-			final long contentLength = Long.parseLong(strContentLength);
-			if (contentLength > 0) {
-				sendChunk(request.getRequestBody(), (int) Math.min(contentLength, MAX_SEND_CHUNK_SIZE), channel);
-			}
-		}
 
+		final InputStream requestBody = request.getRequestBody();
+		if (requestBody != null) {
+			sendChunk(requestBody, MAX_SEND_CHUNK_SIZE, channel);
+		}
 	}
 
 	protected static void sendChunk(final InputStream in, final int length, final Channel channel) throws IOException {
 
-		final byte[] buf = new byte[length + 6];
+		final byte[] buf = new byte[MAX_SEND_CHUNK_SIZE + 6];
 
 		// 2 first bytes : magic signature
 		buf[0] = CLIENT_MAGIC[0];
 		buf[1] = CLIENT_MAGIC[1];
 
-		// compte the actual amount of bytes that we can send
+		// compute the actual amount of bytes that we can send
 		int actual = 0;
 		if (in != null) {
 			try {
