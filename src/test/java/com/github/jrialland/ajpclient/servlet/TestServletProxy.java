@@ -15,7 +15,6 @@ package com.github.jrialland.ajpclient.servlet;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -48,10 +47,8 @@ public class TestServletProxy extends AbstractTomcatTest {
 
 			@Override
 			protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
-				for (final String paramName : Collections.list(req.getParameterNames())) {
-					final String paramValue = req.getParameter(paramName);
-					System.out.println(paramName + "=" + paramValue);
-				}
+				final int nParams = Collections.list(req.getParameterNames()).size();
+				resp.getWriter().print(nParams);
 			}
 		});
 	}
@@ -77,22 +74,20 @@ public class TestServletProxy extends AbstractTomcatTest {
 		}
 	}
 
-	private static String slurp(final URL url) throws IOException {
+	private static String slurp(final InputStream is) throws IOException {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		try (InputStream is = url.openStream()) {
-			final byte[] buff = new byte[4096];
-			int c = 0;
-			while ((c = is.read(buff)) > -1) {
-				baos.write(buff, 0, c);
-			}
-			return baos.toString();
+		final byte[] buff = new byte[4096];
+		int c = 0;
+		while ((c = is.read(buff)) > -1) {
+			baos.write(buff, 0, c);
 		}
+		return baos.toString();
 	}
 
 	@Test
 	public void doTestPost() throws Exception {
 
-		final String cookie = slurp(TestServletProxy.class.getResource("cookie.txt"));
+		final String cookie = slurp(TestServletProxy.class.getResource("cookie.txt").openStream());
 
 		final MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("POST");
@@ -104,11 +99,12 @@ public class TestServletProxy extends AbstractTomcatTest {
 		request.addHeader("Accept-Language", "fr,fr-fr;q=0.8,en-us;q=0.5,en;q=0.3");
 		request.addHeader("Connection", "keep-alive");
 		request.addHeader("Cookie", cookie);
+
 		request.addHeader(
 				"Referer",
 				"https://test.samplesite.com/fr/group/control_panel/manage?p_auth=1bo6fC5N&p_p_id=dbSettingsPortlet_WAR_eloportalservicesportlet&p_p_lifecycle=1&p_p_state=maximized&p_p_mode=view&doAsGroupId=10157&refererPlid=10160&_dbSettingsPortlet_WAR_eloportalservicesportlet_action=showUpdate&_dbSettingsPortlet_WAR_eloportalservicesportlet_client=TMG");
 		request.addHeader("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:32.0) Gecko/20100101 Firefox/32.0");
-
+		request.addHeader("Content-Type", "application/x-www-form-urlencoded");
 		request.setContent("_dbSettingsPortlet_WAR_eloportalservicesportlet_client=xxx&_dbSettingsPortlet_WAR_eloportalservicesportlet_url=jdbc%3Ajtds%3Asqlserver%3A%2F%2Fxxx.xxx.xxx.xxx%2FBD_FR533&_dbSettingsPortlet_WAR_eloportalservicesportlet_user=sa&_dbSettingsPortlet_WAR_eloportalservicesportlet_password=123abcd+&_dbSettingsPortlet_WAR_eloportalservicesportlet_poolmax=5"
 				.getBytes());
 
@@ -118,6 +114,8 @@ public class TestServletProxy extends AbstractTomcatTest {
 			System.out.println(response.getContentAsString());
 			Assert.fail(response.getErrorMessage());
 		}
+
+		Assert.assertEquals("5", response.getContentAsString());
 	}
 
 	/**

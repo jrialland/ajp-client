@@ -12,6 +12,7 @@
  */
 package com.github.jrialland.ajpclient.servlet;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,7 +25,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -57,7 +57,7 @@ public class AjpServletProxy {
 
 		private final URL requestUrl;
 
-		private final ServletInputStream in;
+		private final InputStream in;
 
 		private final List<Header> headers = new LinkedList<Header>();
 
@@ -66,9 +66,7 @@ public class AjpServletProxy {
 		public RequestWrapper(final HttpServletRequest request) throws IOException {
 
 			this.request = request;
-			in = request.getInputStream();
 			requestUrl = new URL(request.getRequestURL().toString());
-
 			requestMethod = RequestMethod.forMethod(request.getMethod());
 			if (requestMethod == null) {
 				requestMethod = RequestMethod.JK_STORED;
@@ -76,12 +74,9 @@ public class AjpServletProxy {
 			}
 
 			boolean hasContentLength = false;
-			boolean hasContentType = false;
 			for (final String headerName : Collections.list(request.getHeaderNames())) {
 				if (headerName.equals("Content-Length")) {
 					hasContentLength = true;
-				} else if (headerName.equals("Content-Type")) {
-					hasContentType = true;
 				}
 				for (final String value : Collections.list(request.getHeaders(headerName))) {
 					headers.add(new Header(headerName, value));
@@ -90,19 +85,6 @@ public class AjpServletProxy {
 
 			if (!hasContentLength && request.getContentLength() > -1) {
 				headers.add(new Header("Content-Length", Long.toString(request.getContentLengthLong())));
-			}
-
-			// RFC2616 : Any HTTP/1.1 message containing an entity-body SHOULD
-			// include a Content-Type header field defining the media type of
-			// that body. If and only if the media type is not given by a
-			// Content-Type field, the recipient MAY attempt to guess the media
-			// type via inspection of its content and/or the name extension(s)
-			// of the URI used to identify the resource. If the media type
-			// remains unknown, the recipient SHOULD treat it as type
-			// "application/octet-stream".
-			if (!hasContentType && requestMethod.equals(RequestMethod.POST)) {
-				getLog().warn("POST request without a Content-Type -- Defaulting to 'application/x-www-form-urlencoded'");
-				headers.add(new Header("Content-Type", "application/x-www-form-urlencoded"));
 			}
 
 			if (request.getQueryString() != null) {
@@ -114,6 +96,8 @@ public class AjpServletProxy {
 			}
 
 			attributes.put(Attribute.servlet_path, request.getServletPath());
+
+			in = new BufferedInputStream(request.getInputStream());
 		}
 
 		@Override
