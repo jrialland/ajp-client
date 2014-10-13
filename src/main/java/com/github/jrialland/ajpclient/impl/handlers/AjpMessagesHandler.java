@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -68,7 +68,7 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 		}
 	};
 
-	protected AjpMessagesHandlerCallback getCallback(Channel chann) {
+	protected AjpMessagesHandlerCallback getCallback(final Channel chann) {
 		return chann.attr(AjpMessagesHandlerCallback.CHANNEL_ATTR).get();
 	}
 
@@ -145,7 +145,7 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 		}
 	}
 
-	protected Long readHeaders(ChannelHandlerContext ctx, final ByteBuf in) throws Exception {
+	protected Long readHeaders(final ChannelHandlerContext ctx, final ByteBuf in) throws Exception {
 		final int statusCode = in.readUnsignedShort();
 		final String statusMessage = readString(in);
 		final int numHeaders = in.readUnsignedShort();
@@ -193,5 +193,11 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 		in.readByte();
 
 		return new String(data);
+	}
+
+	@Override
+	public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
+		getLog().error("exception caught", cause);
+		ctx.channel().close();
 	}
 }

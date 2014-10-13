@@ -216,13 +216,16 @@ public class AjpServletProxy {
 		this.channelPool = channelPool;
 	}
 
-	public static AjpServletProxy forHost(final String host, final int port) {
-		final ChannelPool channelPool = Channels.getPool(host, port);
-		return new AjpServletProxy(channelPool);
+	public static AjpServletProxy forHost(final String host, final int port) throws ServletException {
+		try {
+			final ChannelPool channelPool = Channels.getPool(host, port);
+			return new AjpServletProxy(channelPool);
+		} catch (final Exception e) {
+			throw new ServletException(e);
+		}
 	}
 
 	public void forward(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
-
 		final RequestWrapper ajpRequest = new RequestWrapper(request);
 		final ResponseWrapper ajpResponse = new ResponseWrapper(response);
 		try {

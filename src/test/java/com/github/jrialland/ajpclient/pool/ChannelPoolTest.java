@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,21 +24,19 @@ import java.util.concurrent.Future;
 import org.junit.Test;
 
 import com.github.jrialland.ajpclient.AbstractTomcatTest;
-import com.github.jrialland.ajpclient.pool.ChannelCallback;
-import com.github.jrialland.ajpclient.pool.Channels;
 
 public class ChannelPoolTest extends AbstractTomcatTest {
 
-	private static final int nTasks = 20;
+	private static final int nTasks = 100;
 
 	public ChannelPoolTest() {
 		super(Protocol.Ajp, nTasks);
 	}
 
-	private final Random r = new Random();
-
 	@Test
 	public void testSimple() throws Exception {
+
+		final Random random = new Random();
 
 		Channels.getPool("localhost", getPort()).execute(new ChannelCallback() {
 
@@ -49,20 +47,22 @@ public class ChannelPoolTest extends AbstractTomcatTest {
 
 			@Override
 			public void beforeRelease(final Channel channel) {
-				channel.close();
+
 			}
 
 			@Override
 			public boolean __doWithChannel(final Channel channel) throws Exception {
-				System.out.println(channel);
-				return r.nextBoolean();
+				return random.nextBoolean();
 			}
+
 		});
 
 	}
 
 	@Test
 	public void testMultiple() throws Exception {
+
+		Channels.setMaxConnectionsPerHost(2);
 
 		final Callable<Exception> task = new Callable<Exception>() {
 			@Override
@@ -82,10 +82,12 @@ public class ChannelPoolTest extends AbstractTomcatTest {
 		}
 
 		final List<Future<Exception>> futures = Executors.newCachedThreadPool().invokeAll(tasks);
+
 		for (final Future<Exception> f : futures) {
 			if (f.get() != null) {
 				throw f.get();
 			}
 		}
+
 	}
 }

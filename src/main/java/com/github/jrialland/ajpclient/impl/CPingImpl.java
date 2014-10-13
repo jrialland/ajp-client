@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,7 +45,6 @@ public class CPingImpl extends Conversation implements ChannelCallback, Constant
 
 	@Override
 	public boolean __doWithChannel(final Channel channel) throws Exception {
-
 		// send the cping message
 		channel.writeAndFlush(Unpooled.wrappedBuffer(CPING_MESSAGE));
 		getLog().debug("Sent : CPING (" + PREFIX_CPING + "), payload size = 1 bytes");

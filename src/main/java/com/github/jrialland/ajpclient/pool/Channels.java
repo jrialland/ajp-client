@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +16,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -61,14 +62,21 @@ public final class Channels {
 
 	Map<String, ChannelPool> pools = new TreeMap<String, ChannelPool>();
 
-	private int maxConnectionsPerHost = 15;
+	/**
+	 * // same value as default "maxThreads" in the Apache Tomcat connector spec
+	 * http://tomcat.apache.org/tomcat-6.0-doc/config/http.html
+	 */
+	public static final int DEFAULT_MAX_CONNECTIONS_PER_HOST = 200;
 
-	public static ChannelPool getPool(final String host, final int port) {
+	private int maxConnectionsPerHost = DEFAULT_MAX_CONNECTIONS_PER_HOST;
+
+	public static synchronized ChannelPool getPool(final String host, final int port) throws Exception {
 		final String key = host + ":" + port;
 		ChannelPool pool = instance.get(key);
 		if (pool == null) {
 			pool = new ChannelPool(instance, host, port, instance.maxConnectionsPerHost);
 			instance.set(key, pool);
+			getLog().debug("added " + pool);
 		}
 		return pool;
 	}
@@ -81,7 +89,7 @@ public final class Channels {
 		return instance.maxConnectionsPerHost;
 	}
 
-	public static void setEventLoopGroup(EventLoopGroup eventLoopGroup) {
+	public static void setEventLoopGroup(final EventLoopGroup eventLoopGroup) {
 		instance.eventLoopGroup = eventLoopGroup;
 	}
 
@@ -106,9 +114,9 @@ public final class Channels {
 
 	private static Channel connect(final String host, final int port, final EventLoopGroup eventLoopGroup) {
 		final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).remoteAddress(host, port).channel(NioSocketChannel.class)
-				.handler(new ChannelInitializer<Channel>() {
+				.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE).handler(new ChannelInitializer<Channel>() {
 					@Override
-					protected void initChannel(Channel channel) throws Exception {
+					protected void initChannel(final Channel channel) throws Exception {
 						if (getLog().isTraceEnabled()) {
 							channel.pipeline().addLast(new OutgoingFramesLogger());
 						}

@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -99,7 +99,6 @@ public abstract class Conversation implements ChannelCallback, AjpMessagesHandle
 	@Override
 	public void handleEndResponseMessage(final boolean reuse) throws Exception {
 		throw new UnsupportedOperationException("handleEndResponseMessage() is not implemented.");
-
 	}
 
 	@Override
@@ -118,6 +117,5 @@ public abstract class Conversation implements ChannelCallback, AjpMessagesHandle
 	public void handleSendHeadersMessage(final int statusCode, final String statusMessage, final Collection<Header> headers)
 			throws Exception {
 		throw new UnsupportedOperationException("handleSendHeadersMessage() is not implemented.");
-
 	}
 }

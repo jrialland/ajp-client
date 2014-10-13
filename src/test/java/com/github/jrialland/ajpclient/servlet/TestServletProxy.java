@@ -32,6 +32,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import com.github.jrialland.ajpclient.AbstractTomcatTest;
+import com.github.jrialland.ajpclient.Constants;
 
 public class TestServletProxy extends AbstractTomcatTest {
 
@@ -117,5 +118,27 @@ public class TestServletProxy extends AbstractTomcatTest {
 			System.out.println(response.getContentAsString());
 			Assert.fail(response.getErrorMessage());
 		}
+	}
+
+	/**
+	 * Test that is fails with a request bigger that 8k
+	 */
+	@Test(expected = ServletException.class)
+	public void testTooBigRequest() throws Exception {
+
+		final MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("GET");
+		request.setRequestURI("/dizzy.mp4");
+
+		// generate a request with an enormous 'Cookie' header
+		String cookie = "";
+		final int i = 0;
+		while (cookie.length() < Constants.MAX_MESSAGE_SIZE) {
+			cookie = cookie + "COOKIE" + i + "=foo;";
+		}
+		request.addHeader("Cookie", cookie);
+
+		final MockHttpServletResponse response = new MockHttpServletResponse();
+		AjpServletProxy.forHost("localhost", getPort()).forward(request, response);
 	}
 }

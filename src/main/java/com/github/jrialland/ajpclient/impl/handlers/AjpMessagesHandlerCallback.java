@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,5 +33,4 @@ public interface AjpMessagesHandlerCallback {
 	void handleSendBodyChunkMessage(final ByteBuf data) throws Exception;
 
 	void handleSendHeadersMessage(int statusCode, String statusMessage, Collection<Header> headers) throws Exception;
-
 }

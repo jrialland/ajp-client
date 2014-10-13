@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.PooledObjectFactory;
+import org.apache.commons.pool2.impl.AbandonedConfig;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.github.jrialland.ajpclient.CPing;
 import com.github.jrialland.ajpclient.Forward;
 import com.github.jrialland.ajpclient.impl.CPingImpl;
+import com.github.jrialland.ajpclient.impl.logging.Slf4jLogWriter;
 
 public class ChannelPool {
 
@@ -46,9 +48,9 @@ public class ChannelPool {
 
 		@Override
 		public Channel create() throws Exception {
-			getLog().debug("connecting to " + host + ":" + port);
-			final Channel ch = Channels.connect(host, port);
-			return ch;
+			final Channel channel = Channels.connect(host, port);
+			getLog().debug("obtained " + channel);
+			return channel;
 		}
 
 		@Override
@@ -58,27 +60,22 @@ public class ChannelPool {
 
 		@Override
 		public void destroyObject(final PooledObject<Channel> p) throws Exception {
-			try {
-				p.getObject().close().sync();
-			} catch (final Exception e) {
-				getLog().error("while closing channel", e);
-			}
-			getLog().debug("destroyed connection to " + host + ":" + port);
+			p.getObject().close();
 		}
 
 		@Override
 		public boolean validateObject(final PooledObject<Channel> p) {
 			try {
-				return new CPingImpl(1, TimeUnit.SECONDS).execute(p.getObject());
+				final Channel channel = p.getObject();
+				return channel.isActive() && new CPingImpl(250, TimeUnit.MILLISECONDS).execute(channel);
 			} catch (final Exception e) {
-				getLog().warn("could not validate channel", e);
 				return false;
 			}
 		}
 
 	};
 
-	protected ChannelPool(final Channels cp, final String host, final int port, final int maxConnections) {
+	protected ChannelPool(final Channels cp, final String host, final int port, final int maxConnections) throws Exception {
 		this.host = host;
 		this.port = port;
 		objectPool = new GenericObjectPool<Channel>(factory);
@@ -89,9 +86,25 @@ public class ChannelPool {
 		objectPool.setMinIdle(1);
 		objectPool.setTestWhileIdle(true);
 		objectPool.setTestOnBorrow(false);
-		objectPool.setTestOnCreate(true);
+		objectPool.setTestOnCreate(false);
 		objectPool.setTestOnReturn(false);
 		objectPool.setTimeBetweenEvictionRunsMillis(20000);
+		objectPool.setMinEvictableIdleTimeMillis(30000);
+
+		final AbandonedConfig abandonedConfig = new AbandonedConfig();
+		abandonedConfig.setLogAbandoned(true);
+
+		if (getLog().isDebugEnabled()) {
+			abandonedConfig.setLogWriter(new Slf4jLogWriter(getLog()));
+		}
+
+		abandonedConfig.setRemoveAbandonedOnMaintenance(true);
+		abandonedConfig.setUseUsageTracking(false);
+		abandonedConfig.setRemoveAbandonedTimeout(30000);
+
+		objectPool.setAbandonedConfig(abandonedConfig);
+
+		objectPool.addObject();
 	}
 
 	public void execute(final Forward forward) throws Exception {
@@ -150,5 +163,9 @@ public class ChannelPool {
 
 	public int getPort() {
 		return port;
+	}
+
+	public GenericObjectPool<Channel> getObjectPool() {
+		return objectPool;
 	}
 }

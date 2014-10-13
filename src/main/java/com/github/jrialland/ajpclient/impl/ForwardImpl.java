@@ -150,6 +150,11 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 
 		// now prepare the whole message
 		final byte[] data = baos.toByteArray();
+
+		if (data.length + 4 > MAX_MESSAGE_SIZE) {
+			throw new IllegalArgumentException("Message size is larger than " + MAX_MESSAGE_SIZE + " bytes.");
+		}
+
 		final ByteBuf buf = Unpooled.buffer(4 + data.length);
 		buf.writeBytes(CLIENT_MAGIC);
 		buf.writeShort(data.length);
@@ -245,7 +250,7 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 
 	@Override
 	public void handleEndResponseMessage(final boolean reuse) throws Exception {
+		shouldReuse = reuse;
 		getSemaphore().release();
 	}
-
 }
