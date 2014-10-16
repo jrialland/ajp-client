@@ -75,7 +75,7 @@ public class ChannelPool {
 
 	};
 
-	protected ChannelPool(final Channels cp, final String host, final int port, final int maxConnections) throws Exception {
+	protected ChannelPool(final String host, final int port, final int maxConnections) throws Exception {
 		this.host = host;
 		this.port = port;
 		objectPool = new GenericObjectPool<Channel>(factory);
@@ -115,6 +115,18 @@ public class ChannelPool {
 		execute(cping.impl());
 	}
 
+	public void execute(final Forward forward, final boolean reuseConnection) throws Exception {
+		execute(forward.impl(), reuseConnection);
+	}
+
+	public void execute(final CPing cping, final boolean reuseConnection) throws Exception {
+		execute(cping.impl(), reuseConnection);
+	}
+
+	protected void execute(final ChannelCallback callback) throws Exception {
+		execute(callback, true);
+	}
+
 	/**
 	 * Handles channel picking/returning from/to the pool. the 3 methods
 	 * {@link ChannelCallback#beforeUse(Channel)},
@@ -126,7 +138,7 @@ public class ChannelPool {
 	 *            a channelcallback
 	 * @throws Exception
 	 */
-	protected void execute(final ChannelCallback callback) throws Exception {
+	protected void execute(final ChannelCallback callback, final boolean reuseConnection) throws Exception {
 		getLog().debug("getting channel from the connection pool ...");
 		final Channel channel = objectPool.borrowObject();
 		getLog().debug("... obtained " + channel);
@@ -134,7 +146,7 @@ public class ChannelPool {
 		boolean reuse = false;
 		try {
 			callback.beforeUse(channel);
-			reuse = callback.__doWithChannel(channel);
+			reuse = callback.__doWithChannel(channel) && reuseConnection;
 			try {
 				callback.beforeRelease(channel);
 			} catch (final Exception e) {

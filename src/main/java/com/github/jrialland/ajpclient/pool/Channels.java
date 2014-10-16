@@ -74,7 +74,7 @@ public final class Channels {
 		final String key = host + ":" + port;
 		ChannelPool pool = instance.get(key);
 		if (pool == null) {
-			pool = new ChannelPool(instance, host, port, instance.maxConnectionsPerHost);
+			pool = new ChannelPool(host, port, instance.maxConnectionsPerHost);
 			instance.set(key, pool);
 			getLog().debug("added " + pool);
 		}

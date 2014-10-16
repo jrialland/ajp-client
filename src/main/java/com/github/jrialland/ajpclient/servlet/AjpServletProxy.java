@@ -210,10 +210,15 @@ public class AjpServletProxy {
 	}
 
 	public void forward(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
+		forward(request, response, true);
+	}
+
+	public void forward(final HttpServletRequest request, final HttpServletResponse response, final boolean reuseConnection)
+			throws IOException, ServletException {
 		final RequestWrapper ajpRequest = new RequestWrapper(request);
 		final ResponseWrapper ajpResponse = new ResponseWrapper(response);
 		try {
-			channelPool.execute(new Forward(ajpRequest, ajpResponse));
+			channelPool.execute(new Forward(ajpRequest, ajpResponse), reuseConnection);
 		} catch (final IOException ioException) {
 			throw ioException;
 		} catch (final Exception e) {

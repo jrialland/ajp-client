@@ -6,7 +6,7 @@
 		</encoder>
 	</appender>
 	<logger level="WARN" name="io.netty" />
-	<root level="WARN">
+	<root level="DEBUG">
 		<appender-ref ref="STDOUT" />
 	</root>
 </configuration>
