@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -59,7 +60,7 @@ public class TestServletProxy extends AbstractTomcatTest {
 		request.setMethod("GET");
 		request.setRequestURI("/dizzy.mp4");
 		final MockHttpServletResponse response = new MockHttpServletResponse();
-		AjpServletProxy.forHost("localhost", getPort()).forward(request, response);
+		AjpServletProxy.forHost("localhost", getPort()).forward(request, response, 10, TimeUnit.SECONDS, true);
 		if (response.getStatus() != 200) {
 			System.out.println(response.getContentAsString());
 			Assert.fail(response.getErrorMessage());

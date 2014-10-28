@@ -165,11 +165,12 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 
 		final InputStream requestBody = request.getRequestBody();
 		if (requestBody != null) {
-			sendChunk(requestBody, MAX_SEND_CHUNK_SIZE, channel);
+			sendChunk(true, requestBody, MAX_SEND_CHUNK_SIZE, channel);
 		}
 	}
 
-	protected static void sendChunk(final InputStream in, final int length, final Channel channel) throws IOException {
+	protected static void sendChunk(final boolean firstChunk, final InputStream in, final int length, final Channel channel)
+			throws IOException {
 
 		final byte[] buf = new byte[MAX_SEND_CHUNK_SIZE + 6];
 
@@ -185,6 +186,12 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 			} catch (final EOFException e) {
 				// 'actual' will be set to zero in this case
 			}
+		}
+
+		// do not send anything is this is the first chunk and there is nothing
+		// to send
+		if (firstChunk && actual == 0) {
+			return;
 		}
 
 		// total packet length
@@ -245,7 +252,7 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 
 	@Override
 	public void handleGetBodyChunkMessage(final int requestedLength) throws Exception {
-		sendChunk(request.getRequestBody(), requestedLength, getCurrentChannel());
+		sendChunk(false, request.getRequestBody(), requestedLength, getCurrentChannel());
 	}
 
 	@Override

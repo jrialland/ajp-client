@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -84,7 +85,7 @@ public class AjpServletProxy {
 			}
 
 			if (!hasContentLength && request.getContentLength() > -1) {
-				headers.add(new Header("Content-Length", Long.toString(request.getContentLengthLong())));
+				headers.add(new Header("Content-Length", Long.toString(request.getContentLength())));
 			}
 
 			if (request.getQueryString() != null) {
@@ -213,17 +214,22 @@ public class AjpServletProxy {
 		forward(request, response, true);
 	}
 
-	public void forward(final HttpServletRequest request, final HttpServletResponse response, final boolean reuseConnection)
-			throws IOException, ServletException {
+	public void forward(final HttpServletRequest request, final HttpServletResponse response, final long timeout, final TimeUnit unit,
+			final boolean reuseConnection) throws IOException, ServletException {
 		final RequestWrapper ajpRequest = new RequestWrapper(request);
 		final ResponseWrapper ajpResponse = new ResponseWrapper(response);
 		try {
-			channelPool.execute(new Forward(ajpRequest, ajpResponse), reuseConnection);
+			channelPool.execute(new Forward(ajpRequest, ajpResponse, timeout, unit), reuseConnection);
 		} catch (final IOException ioException) {
 			throw ioException;
 		} catch (final Exception e) {
 			throw new ServletException(e);
 		}
+	}
+
+	public void forward(final HttpServletRequest request, final HttpServletResponse response, final boolean reuseConnection)
+			throws IOException, ServletException {
+		forward(request, response, -1L, null, reuseConnection);
 	}
 
 }

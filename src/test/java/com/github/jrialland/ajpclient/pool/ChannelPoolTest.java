@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
@@ -44,7 +43,7 @@ public class ChannelPoolTest extends AbstractTomcatTest {
 	@Test
 	public void testMultiple() throws Exception {
 
-		final ChannelPool channelPool = new ChannelPool("localhost", getPort(), 1);
+		Channels.setMaxConnectionsPerHost(2);
 
 		final AtomicInteger counter = new AtomicInteger(0);
 
@@ -55,7 +54,7 @@ public class ChannelPoolTest extends AbstractTomcatTest {
 					final MockForwardRequest request = new MockForwardRequest();
 					final MockForwardResponse response = new MockForwardResponse();
 					request.setRequestUri("/dizzy.mp4");
-					channelPool.execute(new Forward(request, response), true);
+					Channels.getPool("localhost", getPort()).execute(new Forward(request, response), true);
 					counter.incrementAndGet();
 					return null;
 				} catch (final Exception e) {
@@ -72,7 +71,7 @@ public class ChannelPoolTest extends AbstractTomcatTest {
 		final List<Future<Exception>> futures = Executors.newCachedThreadPool().invokeAll(tasks);
 
 		for (final Future<Exception> f : futures) {
-			if (f.get(10, TimeUnit.SECONDS) != null) {
+			if (f.get() != null) {
 				throw f.get();
 			}
 		}
