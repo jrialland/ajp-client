@@ -91,7 +91,6 @@ public class ChannelPool {
 		objectPool.setTimeBetweenEvictionRunsMillis(20000);
 		objectPool.setMinEvictableIdleTimeMillis(30000);
 		objectPool.setBlockWhenExhausted(true);
-		objectPool.setMaxWaitMillis(1000);
 		objectPool.setNumTestsPerEvictionRun(objectPool.getMaxTotal());
 
 		final AbandonedConfig abandonedConfig = new AbandonedConfig();
