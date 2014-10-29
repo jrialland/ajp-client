@@ -77,10 +77,13 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 		checkRequest(request);
 		sendRequest(channel, request);
 		if (unit == null) {
+			getLog().debug("START ACQUIRE");
 			getSemaphore().acquire();
+			getLog().debug("END ACQUIRE");
 		} else if (!getSemaphore().tryAcquire(timeout, unit)) {
 			throw new TimeoutException("time limit exceeded");
 		}
+		response.atResponseBodyEnd(shouldReuse);
 		return shouldReuse;
 	}
 

@@ -51,6 +51,21 @@ public class TestServletProxy extends AbstractTomcatTest {
 				resp.getWriter().print(nParams);
 			}
 		});
+
+		addServlet("/long_request", new HttpServlet() {
+
+			private static final long serialVersionUID = 168411L;
+
+			@Override
+			protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+				try {
+					final int time = Integer.parseInt(req.getParameter("duration"));
+					Thread.sleep(time);
+				} catch (final Exception e) {
+					throw new ServletException(e);
+				}
+			}
+		});
 	}
 
 	@Test
@@ -137,5 +152,24 @@ public class TestServletProxy extends AbstractTomcatTest {
 
 		final MockHttpServletResponse response = new MockHttpServletResponse();
 		AjpServletProxy.forHost("localhost", getPort()).forward(request, response);
+	}
+
+	@Test
+	public void testMultiple() throws Exception {
+
+		final int nTasks = 10;
+
+		for (int i = 0; i < nTasks; i++) {
+			final MockHttpServletRequest request = new MockHttpServletRequest();
+			request.setMethod("GET");
+			request.setRequestURI("/long_request");
+			request.setMethod("POST");
+			request.addHeader("Content-Type", "application/x-www-form-urlencoded");
+			request.setContent("duration=1000".getBytes());
+			final MockHttpServletResponse response = new MockHttpServletResponse();
+			AjpServletProxy.forHost("localhost", getPort()).forward(request, response);
+			Assert.assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+		}
+
 	}
 }

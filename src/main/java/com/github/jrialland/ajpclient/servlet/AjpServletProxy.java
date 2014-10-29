@@ -222,6 +222,8 @@ public class AjpServletProxy {
 			channelPool.execute(new Forward(ajpRequest, ajpResponse, timeout, unit), reuseConnection);
 		} catch (final IOException ioException) {
 			throw ioException;
+		} catch (final InterruptedException e) {
+			// be silent about this kind of exceptions
 		} catch (final Exception e) {
 			throw new ServletException(e);
 		}

@@ -87,7 +87,6 @@ public abstract class Conversation implements ChannelCallback, AjpMessagesHandle
 	@Override
 	public boolean __doWithChannel(final Channel channel) throws Exception {
 		throw new UnsupportedOperationException("__doWithChannel() is not implemented.");
-
 	}
 
 	@Override

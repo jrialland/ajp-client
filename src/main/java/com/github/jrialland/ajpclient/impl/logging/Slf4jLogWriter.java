@@ -20,6 +20,10 @@ import org.slf4j.Logger;
 
 public class Slf4jLogWriter extends PrintWriter {
 
+	public static enum Level {
+		TRACE, DEBUG, INFO, WARN, ERROR,
+	}
+
 	/**
 	 * Internal buffer.
 	 */
@@ -30,16 +34,7 @@ public class Slf4jLogWriter extends PrintWriter {
 	 */
 	private Logger log;
 
-	/**
-	 * Creates a new <code>LogPrintWriter</code> which is based on a
-	 * <code>Writer</code>.
-	 *
-	 * @param out
-	 *            the base <code>Writer</code>.
-	 */
-	public Slf4jLogWriter(final Writer out) {
-		super(out);
-	}
+	private Level level;
 
 	/**
 	 * Creates a new <code>LogPrintWriter</code> which is based on a
@@ -48,23 +43,10 @@ public class Slf4jLogWriter extends PrintWriter {
 	 * @param log
 	 *            the base <code>Logger</code>.
 	 */
-	public Slf4jLogWriter(final Logger log) {
+	public Slf4jLogWriter(final Level level, final Logger log) {
 		super(new NullWriter());
+		this.level = level;
 		this.log = log;
-	}
-
-	/**
-	 * Sets a new output <code>Writer</code>. Calling this method will flush
-	 * this <code>LogPrintWriter</code> before the new <code>Writer</code>
-	 * <code>out</code> is set.
-	 *
-	 * @param out
-	 *            the <code>Writer</code> to use for output.
-	 */
-	public void setWriter(final Writer out) {
-		flushBuffer();
-		this.out = out;
-		log = null;
 	}
 
 	/**
@@ -109,10 +91,6 @@ public class Slf4jLogWriter extends PrintWriter {
 
 	@Override
 	public void println() {
-		if (log == null) {
-			// only add newline when operating on a writer
-			buffer.append('\n');
-		}
 		flushBuffer();
 	}
 
@@ -120,17 +98,37 @@ public class Slf4jLogWriter extends PrintWriter {
 		if (buffer.length() == 0) {
 			return;
 		}
-		if (log != null) {
+
+		switch (level) {
+		case TRACE:
+			log.trace(buffer.toString());
+			break;
+		case DEBUG:
 			log.debug(buffer.toString());
-		} else {
-			try {
-				out.write(buffer.toString());
-			} catch (final IOException e) {
-				setError();
-			}
+			break;
+		case INFO:
+			log.info(buffer.toString());
+			break;
+		case WARN:
+			log.warn(buffer.toString());
+			break;
+		case ERROR:
+			log.error(buffer.toString());
+			break;
+		default:
+			break;
 		}
+
 		// reset buffer
 		buffer.setLength(0);
+	}
+
+	public void setLevel(final Level level) {
+		this.level = level;
+	}
+
+	public Level getLevel() {
+		return level;
 	}
 
 	/**

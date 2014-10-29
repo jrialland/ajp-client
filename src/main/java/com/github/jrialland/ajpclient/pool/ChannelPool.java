@@ -29,6 +29,7 @@ import com.github.jrialland.ajpclient.CPing;
 import com.github.jrialland.ajpclient.Forward;
 import com.github.jrialland.ajpclient.impl.CPingImpl;
 import com.github.jrialland.ajpclient.impl.logging.Slf4jLogWriter;
+import com.github.jrialland.ajpclient.impl.logging.Slf4jLogWriter.Level;
 
 public class ChannelPool {
 
@@ -97,7 +98,7 @@ public class ChannelPool {
 		abandonedConfig.setLogAbandoned(true);
 
 		if (getLog().isDebugEnabled()) {
-			abandonedConfig.setLogWriter(new Slf4jLogWriter(getLog()));
+			abandonedConfig.setLogWriter(new Slf4jLogWriter(Level.DEBUG, getLog()));
 		}
 
 		abandonedConfig.setRemoveAbandonedOnMaintenance(true);
