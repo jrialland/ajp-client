@@ -11,8 +11,9 @@ Licensed under the Apache License, Version 2.0 (see [LICENSE](https://github.com
 [![Coverage Status](https://img.shields.io/coveralls/jrialland/ajp-client.svg)](https://coveralls.io/r/jrialland/ajp-client)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.jrialland/ajpclient/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.jrialland/ajpclient)
 
-
 [![Code statistics](http://www.ohloh.net/p/ajp-client/widgets/project_thin_badge.gif)](https://www.ohloh.net/p/ajp-client)
+
+[![Commits](https://www.openhub.net/p/ajp-client/analyses/latest/commits_spark.png)]
 
 Simple Usecases :
 ------------------
