@@ -67,5 +67,5 @@ Will use a socket channel picked from a pool, allowing the reuse of sockets amon
 	
 	HttpServletRequest request = ...
 	HttpServetResponse response = ...
-	new AjpServletProxy.forHost("localhost", 8009).forward(request, response);
+	AjpServletProxy.forHost("localhost", 8009).forward(request, response);
 ```
