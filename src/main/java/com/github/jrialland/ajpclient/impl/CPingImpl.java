@@ -12,12 +12,12 @@
  */
 package com.github.jrialland.ajpclient.impl;
 
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 
 import java.util.concurrent.TimeUnit;
 
 import com.github.jrialland.ajpclient.Constants;
+import com.github.jrialland.ajpclient.pool.Buffers;
 import com.github.jrialland.ajpclient.pool.ChannelCallback;
 
 /**
@@ -46,7 +46,7 @@ public class CPingImpl extends Conversation implements ChannelCallback, Constant
 	@Override
 	public boolean __doWithChannel(final Channel channel) throws Exception {
 		// send the cping message
-		channel.writeAndFlush(Unpooled.wrappedBuffer(CPING_MESSAGE));
+		channel.writeAndFlush(Buffers.wrap(CPING_MESSAGE, 0, CPING_MESSAGE.length));
 		getLog().debug("Sent : CPING (" + PREFIX_CPING + "), payload size = 1 bytes");
 
 		// wait for the cpong message to unblock us

@@ -12,24 +12,26 @@
  */
 package com.github.jrialland.ajpclient.pool;
 
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.pool2.BasePooledObjectFactory;
-import org.apache.commons.pool2.PooledObject;
-import org.apache.commons.pool2.PooledObjectFactory;
-import org.apache.commons.pool2.impl.AbandonedConfig;
-import org.apache.commons.pool2.impl.DefaultPooledObject;
-import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.r358.poolnetty.common.BootstrapProvider;
+import org.r358.poolnetty.common.ConnectionInfo;
+import org.r358.poolnetty.common.ConnectionInfoProvider;
+import org.r358.poolnetty.common.PoolProvider;
+import org.r358.poolnetty.pool.NettyConnectionPool;
+import org.r358.poolnetty.pool.NettyConnectionPoolBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.jrialland.ajpclient.CPing;
 import com.github.jrialland.ajpclient.Forward;
-import com.github.jrialland.ajpclient.impl.CPingImpl;
-import com.github.jrialland.ajpclient.impl.logging.Slf4jLogWriter;
-import com.github.jrialland.ajpclient.impl.logging.Slf4jLogWriter.Level;
+import com.github.jrialland.ajpclient.jmx.ChannelPoolMonitorMBean;
+import com.github.jrialland.ajpclient.jmx.impl.ChannelPoolMonitorImpl;
 
 public class ChannelPool {
 
@@ -43,71 +45,47 @@ public class ChannelPool {
 
 	int port;
 
-	private final GenericObjectPool<Channel> objectPool;
+	private NettyConnectionPool ncp;
 
-	private final PooledObjectFactory<Channel> factory = new BasePooledObjectFactory<Channel>() {
+	private ChannelPoolMonitorImpl monitor;
 
-		@Override
-		public Channel create() throws Exception {
-			final Channel channel = Channels.connect(host, port);
-			getLog().debug("obtained " + channel);
-			return channel;
-		}
-
-		@Override
-		public PooledObject<Channel> wrap(final Channel obj) {
-			return new DefaultPooledObject<Channel>(obj);
-		}
-
-		@Override
-		public void destroyObject(final PooledObject<Channel> p) throws Exception {
-			p.getObject().close();
-		}
-
-		@Override
-		public boolean validateObject(final PooledObject<Channel> p) {
-			try {
-				final Channel channel = p.getObject();
-				return channel.isActive() && new CPingImpl(250, TimeUnit.MILLISECONDS).execute(channel);
-			} catch (final Exception e) {
-				return false;
-			}
-		}
-
-	};
-
-	protected ChannelPool(final String host, final int port, final int maxConnections) throws Exception {
+	protected ChannelPool(final String host, final int port) throws Exception {
 		this.host = host;
 		this.port = port;
-		objectPool = new GenericObjectPool<Channel>(factory);
-		if (maxConnections < 1) {
-			throw new IllegalArgumentException("maxConnections must be > 0");
-		}
-		objectPool.setMaxTotal(maxConnections);
-		objectPool.setMinIdle(1);
-		objectPool.setTestWhileIdle(true);
-		objectPool.setTestOnBorrow(false);
-		objectPool.setTestOnCreate(false);
-		objectPool.setTestOnReturn(false);
-		objectPool.setTimeBetweenEvictionRunsMillis(20000);
-		objectPool.setMinEvictableIdleTimeMillis(30000);
-		objectPool.setBlockWhenExhausted(true);
-		objectPool.setNumTestsPerEvictionRun(objectPool.getMaxTotal());
+		monitor = new ChannelPoolMonitorImpl(this);
+		reset();
+	}
 
-		final AbandonedConfig abandonedConfig = new AbandonedConfig();
-		abandonedConfig.setLogAbandoned(true);
+	private static NettyConnectionPool createPool(final String host, final int port, ChannelPoolMonitorImpl monitor) {
+		NettyConnectionPoolBuilder ncb = new NettyConnectionPoolBuilder();
 
-		if (getLog().isDebugEnabled()) {
-			abandonedConfig.setLogWriter(new Slf4jLogWriter(Level.DEBUG, getLog()));
-		}
+		final Bootstrap bootstrap = Channels.newBootStrap(host, port);
 
-		abandonedConfig.setRemoveAbandonedOnMaintenance(true);
-		abandonedConfig.setUseUsageTracking(false);
-		abandonedConfig.setRemoveAbandonedTimeout(30000);
+		ncb.withBootstrapProvider(new BootstrapProvider() {
 
-		objectPool.setAbandonedConfig(abandonedConfig);
+			@Override
+			public Bootstrap createBootstrap(PoolProvider pp) {
+				return bootstrap;
+			}
+		});
 
-		objectPool.addObject();
+		ncb.withConnectionInfoProvider(new ConnectionInfoProvider() {
+
+			@Override
+			public ConnectionInfo connectionInfo(PoolProvider pp) {
+				final InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
+				return new ConnectionInfo(remoteAddr, null, new ChannelInitializer<Channel>() {
+					@Override
+					protected void initChannel(Channel ch) throws Exception {
+						Channels.initChannel(ch);
+					}
+				});
+			}
+		});
+
+		NettyConnectionPool pool = ncb.build();
+		pool.addListener(monitor);
+		return pool;
 	}
 
 	public void execute(final Forward forward) throws Exception {
@@ -143,7 +121,7 @@ public class ChannelPool {
 	 */
 	protected void execute(final ChannelCallback callback, final boolean reuseConnection) throws Exception {
 		getLog().debug("getting channel from the connection pool ...");
-		final Channel channel = objectPool.borrowObject();
+		final Channel channel = ncp.lease(1, TimeUnit.SECONDS, null);
 		getLog().debug("... obtained " + channel);
 
 		boolean reuse = false;
@@ -160,16 +138,16 @@ public class ChannelPool {
 		} finally {
 			if (reuse) {
 				getLog().debug("returning channel " + channel + " to the connection pool");
-				objectPool.returnObject(channel);
+				ncp.yield(channel);
 			} else {
 				getLog().debug("invalidating channel " + channel);
-				objectPool.invalidateObject(channel);
+				channel.close();
 			}
 		}
 	}
 
 	protected void destroy() {
-		objectPool.clear();
+		ncp.stop(true);
 	}
 
 	public String getHost() {
@@ -180,7 +158,19 @@ public class ChannelPool {
 		return port;
 	}
 
-	public GenericObjectPool<Channel> getObjectPool() {
-		return objectPool;
+	public ChannelPoolMonitorMBean getMonitor() {
+		return monitor;
+	}
+
+	public void reset() {
+		if (ncp != null) {
+			ncp.stop(true);
+		}
+		ncp = createPool(host, port, monitor);
+		try {
+			ncp.start(1000, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
+		}
 	}
 }

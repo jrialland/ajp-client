@@ -42,9 +42,7 @@ public class ChannelPoolTest extends AbstractTomcatTest {
 
 	@Test
 	public void testMultiple() throws Exception {
-
-		Channels.setMaxConnectionsPerHost(2);
-
+		
 		final AtomicInteger counter = new AtomicInteger(0);
 
 		final Callable<Exception> task = new Callable<Exception>() {
