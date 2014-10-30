@@ -149,11 +149,11 @@ public class ChannelPool {
 		} finally {
 			if (reuse) {
 				getLog().debug("returning channel " + channel + " to the connection pool");
-				ncp.yield(channel);
 			} else {
 				getLog().debug("invalidating channel " + channel);
 				channel.close();
 			}
+			ncp.yield(channel);
 		}
 	}
 
