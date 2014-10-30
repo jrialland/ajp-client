@@ -13,12 +13,16 @@
 package com.github.jrialland.ajpclient.pool;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 
 public class Buffers {
 
+	private static final ByteBufAllocator allocator = new PooledByteBufAllocator(true); 
+	
 	public static ByteBuf makeBuffer(int size) {
-		return Unpooled.buffer(size);
+		return allocator.buffer(size);
 	}
 
 	public static ByteBuf wrap(byte[] array, int offset, int len) {
