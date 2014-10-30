@@ -13,7 +13,6 @@
 package com.github.jrialland.ajpclient.impl;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 
 import java.io.ByteArrayOutputStream;
@@ -32,6 +31,7 @@ import com.github.jrialland.ajpclient.ForwardRequest;
 import com.github.jrialland.ajpclient.ForwardResponse;
 import com.github.jrialland.ajpclient.Header;
 import com.github.jrialland.ajpclient.impl.enums.RequestHeader;
+import com.github.jrialland.ajpclient.pool.Buffers;
 import com.github.jrialland.ajpclient.pool.ChannelCallback;
 
 /**
@@ -158,7 +158,7 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 			throw new IllegalArgumentException("Message size is larger than " + MAX_MESSAGE_SIZE + " bytes.");
 		}
 
-		final ByteBuf buf = Unpooled.buffer(4 + data.length);
+		final ByteBuf buf = Buffers.makeBuffer(4 + data.length);
 		buf.writeBytes(CLIENT_MAGIC);
 		buf.writeShort(data.length);
 		buf.writeBytes(data);
@@ -172,8 +172,7 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 		}
 	}
 
-	protected static void sendChunk(final boolean firstChunk, final InputStream in, final int length, final Channel channel)
-			throws IOException {
+	protected static void sendChunk(final boolean firstChunk, final InputStream in, final int length, final Channel channel) throws IOException {
 
 		final byte[] buf = new byte[MAX_SEND_CHUNK_SIZE + 6];
 
@@ -206,7 +205,7 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 		buf[5] = (byte) (actual & 0xff);
 
 		// write to channel
-		channel.writeAndFlush(Unpooled.wrappedBuffer(buf, 0, actual + 6));
+		channel.writeAndFlush(Buffers.wrap(buf, 0, actual + 6));
 		getLog().debug("Sent : REQUESTBODYCHUNK (n/a), payload size = " + (actual + 2) + " bytes");
 	}
 
@@ -239,8 +238,7 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 	}
 
 	@Override
-	public void handleSendHeadersMessage(final int statusCode, final String statusMessage, final Collection<Header> headers)
-			throws Exception {
+	public void handleSendHeadersMessage(final int statusCode, final String statusMessage, final Collection<Header> headers) throws Exception {
 		response.setStatus(statusCode, statusMessage);
 		for (final Header h : headers) {
 			response.setHeader(h.getKey(), h.getValue());

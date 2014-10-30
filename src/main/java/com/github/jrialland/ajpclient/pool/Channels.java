@@ -99,19 +99,18 @@ public final class Channels {
 	public static Bootstrap newBootStrap(String host, int port) {
 		return newBootStrap(host, port, getEventLoopGroup());
 	}
+
 	public static Bootstrap newBootStrap(String host, int port, EventLoopGroup eventLoopGroup) {
-		return new Bootstrap().group(getEventLoopGroup()).remoteAddress(host, port).channel(NioSocketChannel.class)
-		.option(ChannelOption.SO_KEEPALIVE, true)
-		.option(ChannelOption.AUTO_READ, true);
+		return new Bootstrap().group(getEventLoopGroup()).remoteAddress(host, port).channel(NioSocketChannel.class).option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.AUTO_READ, true);
 	}
-	
+
 	public static void initChannel(Channel channel) {
 		if (getLog().isTraceEnabled()) {
 			channel.pipeline().addLast(new OutgoingFramesLogger());
 		}
 		channel.pipeline().addLast(new AjpMessagesHandler());
 	}
-	
+
 	private static Channel connect(final String host, final int port, final EventLoopGroup eventLoopGroup) {
 		final Bootstrap bootstrap = newBootStrap(host, port, eventLoopGroup);
 		bootstrap.handler(new ChannelInitializer<Channel>() {
