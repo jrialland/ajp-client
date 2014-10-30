@@ -58,9 +58,9 @@ public class ChannelPool {
 	}
 
 	private static NettyConnectionPool createPool(final String host, final int port, final ChannelPoolMonitorImpl monitor) {
-		final NettyConnectionPoolBuilder ncb = new NettyConnectionPoolBuilder();
-
 		final Bootstrap bootstrap = Channels.newBootStrap(host, port);
+
+		final NettyConnectionPoolBuilder ncb = new NettyConnectionPoolBuilder(0, 200, 1000);
 
 		ncb.withBootstrapProvider(new BootstrapProvider() {
 
