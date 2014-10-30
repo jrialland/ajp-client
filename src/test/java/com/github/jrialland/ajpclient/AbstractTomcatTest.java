@@ -28,8 +28,6 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -45,6 +43,8 @@ import org.apache.catalina.startup.Tomcat;
 import org.apache.tomcat.util.threads.ThreadPoolExecutor;
 import org.junit.After;
 import org.junit.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.mock.web.MockServletContext;
 
@@ -56,7 +56,7 @@ import org.springframework.mock.web.MockServletContext;
  */
 public abstract class AbstractTomcatTest {
 
-	private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
 
 	private Tomcat tomcat;
 
@@ -229,7 +229,7 @@ public abstract class AbstractTomcatTest {
 			tomcat.stop();
 			tomcat.destroy();
 		} catch (final Exception e) {
-			logger.log(Level.SEVERE, "could not stop tomcat", e);
+			logger.error("could not stop tomcat", e);
 		}
 
 		deleteDirectory(tempDir);

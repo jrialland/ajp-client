@@ -155,9 +155,7 @@ public class TestForward extends AbstractTomcatTest {
 
 		Assert.assertEquals(200, response.getStatusCode());
 		Assert.assertEquals("OK", response.getStatusMessage());
-
-		System.out.println(response.getResponseBodyAsString());
-
+		Assert.assertFalse(response.getResponseBodyAsString().isEmpty());
 	}
 
 	@Test
