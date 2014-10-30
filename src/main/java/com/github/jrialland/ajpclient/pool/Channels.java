@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.jrialland.ajpclient.impl.handlers.AjpMessagesHandler;
 import com.github.jrialland.ajpclient.impl.handlers.OutgoingFramesLogger;
+import com.github.jrialland.ajpclient.jmx.JmxExporter;
 
 public final class Channels {
 
@@ -68,6 +69,7 @@ public final class Channels {
 		if (pool == null) {
 			pool = new ChannelPool(host, port);
 			instance.set(key, pool);
+			JmxExporter.exportMonitor(pool);
 			getLog().debug("added " + pool);
 		}
 		return pool;

@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
 
 import com.github.jrialland.ajpclient.CPing;
 import com.github.jrialland.ajpclient.Forward;
+import com.github.jrialland.ajpclient.jmx.ChannelPoolMonitorMBean;
+import com.github.jrialland.ajpclient.jmx.impl.ChannelPoolMonitorImpl;
 
 public class ChannelPool {
 
@@ -42,27 +44,33 @@ public class ChannelPool {
 	String host;
 
 	int port;
-	
+
 	private NettyConnectionPool ncp;
+
+	private ChannelPoolMonitorImpl monitor;
 
 	protected ChannelPool(final String host, final int port) throws Exception {
 		this.host = host;
 		this.port = port;
-	
+		monitor = new ChannelPoolMonitorImpl(this);
+		reset();
+	}
+
+	private static NettyConnectionPool createPool(final String host, final int port, ChannelPoolMonitorImpl monitor) {
 		NettyConnectionPoolBuilder ncb = new NettyConnectionPoolBuilder();
-		
+
 		final Bootstrap bootstrap = Channels.newBootStrap(host, port);
-		
+
 		ncb.withBootstrapProvider(new BootstrapProvider() {
-			
+
 			@Override
 			public Bootstrap createBootstrap(PoolProvider pp) {
 				return bootstrap;
 			}
 		});
-		
+
 		ncb.withConnectionInfoProvider(new ConnectionInfoProvider() {
-			
+
 			@Override
 			public ConnectionInfo connectionInfo(PoolProvider pp) {
 				final InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
@@ -74,9 +82,10 @@ public class ChannelPool {
 				});
 			}
 		});
-		
-		ncp = ncb.build();
-		ncp.start(1000, TimeUnit.MILLISECONDS);
+
+		NettyConnectionPool pool = ncb.build();
+		pool.addListener(monitor);
+		return pool;
 	}
 
 	public void execute(final Forward forward) throws Exception {
@@ -147,5 +156,21 @@ public class ChannelPool {
 
 	public int getPort() {
 		return port;
+	}
+
+	public ChannelPoolMonitorMBean getMonitor() {
+		return monitor;
+	}
+
+	public void reset() {
+		if (ncp != null) {
+			ncp.stop(true);
+		}
+		ncp = createPool(host, port, monitor);
+		try {
+			ncp.start(1000, TimeUnit.MILLISECONDS);
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
+		}
 	}
 }
