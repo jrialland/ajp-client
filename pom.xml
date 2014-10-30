@@ -50,6 +50,20 @@
 		<slf4j.version>1.7.6</slf4j.version>
 		<maven.jacoco.version>0.7.2.201409121644</maven.jacoco.version>
 	</properties>
+
+	<repositories>
+		<repository>
+			<id>jcenter</id>
+			<url>http://jcenter.bintray.com/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -110,9 +124,14 @@
 			<version>4.0.23.Final</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-pool2</artifactId>
-			<version>2.2</version>
+			<groupId>org.r358.poolnetty</groupId>
+			<artifactId>common</artifactId>
+			<version>0.1.0.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.r358.poolnetty</groupId>
+			<artifactId>pool</artifactId>
+			<version>0.1.0.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -215,7 +234,8 @@
 		</plugins>
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>

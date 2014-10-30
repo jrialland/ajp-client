@@ -62,31 +62,15 @@ public final class Channels {
 
 	Map<String, ChannelPool> pools = new TreeMap<String, ChannelPool>();
 
-	/**
-	 * // same value as default "maxThreads" in the Apache Tomcat connector spec
-	 * http://tomcat.apache.org/tomcat-6.0-doc/config/http.html
-	 */
-	public static final int DEFAULT_MAX_CONNECTIONS_PER_HOST = 200;
-
-	private int maxConnectionsPerHost = DEFAULT_MAX_CONNECTIONS_PER_HOST;
-
 	public static synchronized ChannelPool getPool(final String host, final int port) throws Exception {
 		final String key = host + ":" + port;
 		ChannelPool pool = instance.get(key);
 		if (pool == null) {
-			pool = new ChannelPool(host, port, instance.maxConnectionsPerHost);
+			pool = new ChannelPool(host, port);
 			instance.set(key, pool);
 			getLog().debug("added " + pool);
 		}
 		return pool;
-	}
-
-	public static void setMaxConnectionsPerHost(final int maxConnectionsPerHost) {
-		instance.maxConnectionsPerHost = maxConnectionsPerHost;
-	}
-
-	public static int getMaxConnectionsPerHost() {
-		return instance.maxConnectionsPerHost;
 	}
 
 	public static void setEventLoopGroup(final EventLoopGroup eventLoopGroup) {
@@ -112,17 +96,30 @@ public final class Channels {
 		return connect(host, port, getEventLoopGroup());
 	}
 
+	public static Bootstrap newBootStrap(String host, int port) {
+		return newBootStrap(host, port, getEventLoopGroup());
+	}
+	public static Bootstrap newBootStrap(String host, int port, EventLoopGroup eventLoopGroup) {
+		return new Bootstrap().group(getEventLoopGroup()).remoteAddress(host, port).channel(NioSocketChannel.class)
+		.option(ChannelOption.SO_KEEPALIVE, true)
+		.option(ChannelOption.AUTO_READ, true);
+	}
+	
+	public static void initChannel(Channel channel) {
+		if (getLog().isTraceEnabled()) {
+			channel.pipeline().addLast(new OutgoingFramesLogger());
+		}
+		channel.pipeline().addLast(new AjpMessagesHandler());
+	}
+	
 	private static Channel connect(final String host, final int port, final EventLoopGroup eventLoopGroup) {
-		final Bootstrap bootstrap = new Bootstrap().group(eventLoopGroup).remoteAddress(host, port).channel(NioSocketChannel.class)
-				.option(ChannelOption.SO_KEEPALIVE, Boolean.TRUE).handler(new ChannelInitializer<Channel>() {
-					@Override
-					protected void initChannel(final Channel channel) throws Exception {
-						if (getLog().isTraceEnabled()) {
-							channel.pipeline().addLast(new OutgoingFramesLogger());
-						}
-						channel.pipeline().addLast(new AjpMessagesHandler());
-					}
-				});
+		final Bootstrap bootstrap = newBootStrap(host, port, eventLoopGroup);
+		bootstrap.handler(new ChannelInitializer<Channel>() {
+			@Override
+			protected void initChannel(Channel ch) throws Exception {
+				Channels.initChannel(ch);
+			}
+		});
 		try {
 			final ChannelFuture cf = bootstrap.connect().sync();
 			final Channel channel = cf.channel();

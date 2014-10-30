@@ -3,8 +3,6 @@ java client library for the Apache JServ Protocol 1.3
 
 This is a java implementation of an ajp13 client, allowing to send requests to a servlet container using this protocol.
 
-This library relies on netty 4.0 and commons-pool2
-
 Licensed under the Apache License, Version 2.0 (see [LICENSE](https://github.com/jrialland/ajp-client/blob/master/LICENSE))
 
 [![Build Status](https://travis-ci.org/jrialland/ajp-client.svg)](https://travis-ci.org/jrialland/ajp-client)
