@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import org.r358.poolnetty.common.BootstrapProvider;
 import org.r358.poolnetty.common.ConnectionInfo;
 import org.r358.poolnetty.common.ConnectionInfoProvider;
+import org.r358.poolnetty.common.ContextExceptionHandler;
 import org.r358.poolnetty.common.PoolProvider;
 import org.r358.poolnetty.pool.NettyConnectionPool;
 import org.r358.poolnetty.pool.NettyConnectionPoolBuilder;
@@ -47,7 +48,7 @@ public class ChannelPool {
 
 	private NettyConnectionPool ncp;
 
-	private ChannelPoolMonitorImpl monitor;
+	private final ChannelPoolMonitorImpl monitor;
 
 	protected ChannelPool(final String host, final int port) throws Exception {
 		this.host = host;
@@ -56,15 +57,15 @@ public class ChannelPool {
 		reset();
 	}
 
-	private static NettyConnectionPool createPool(final String host, final int port, ChannelPoolMonitorImpl monitor) {
-		NettyConnectionPoolBuilder ncb = new NettyConnectionPoolBuilder();
+	private static NettyConnectionPool createPool(final String host, final int port, final ChannelPoolMonitorImpl monitor) {
+		final NettyConnectionPoolBuilder ncb = new NettyConnectionPoolBuilder();
 
 		final Bootstrap bootstrap = Channels.newBootStrap(host, port);
 
 		ncb.withBootstrapProvider(new BootstrapProvider() {
 
 			@Override
-			public Bootstrap createBootstrap(PoolProvider pp) {
+			public Bootstrap createBootstrap(final PoolProvider pp) {
 				return bootstrap;
 			}
 		});
@@ -72,18 +73,28 @@ public class ChannelPool {
 		ncb.withConnectionInfoProvider(new ConnectionInfoProvider() {
 
 			@Override
-			public ConnectionInfo connectionInfo(PoolProvider pp) {
+			public ConnectionInfo connectionInfo(final PoolProvider pp) {
 				final InetSocketAddress remoteAddr = new InetSocketAddress(host, port);
 				return new ConnectionInfo(remoteAddr, null, new ChannelInitializer<Channel>() {
 					@Override
-					protected void initChannel(Channel ch) throws Exception {
+					protected void initChannel(final Channel ch) throws Exception {
 						Channels.initChannel(ch);
 					}
 				});
 			}
 		});
 
-		NettyConnectionPool pool = ncb.build();
+		/**
+		 * Always close on exception
+		 */
+		ncb.withContextExceptionHandler(new ContextExceptionHandler() {
+			@Override
+			public boolean close(final Throwable arg0, final PoolProvider arg1) {
+				return true;
+			}
+		});
+
+		final NettyConnectionPool pool = ncb.build();
 		pool.addListener(monitor);
 		return pool;
 	}
@@ -169,7 +180,7 @@ public class ChannelPool {
 		ncp = createPool(host, port, monitor);
 		try {
 			ncp.start(1000, TimeUnit.MILLISECONDS);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new IllegalStateException(e);
 		}
 	}
