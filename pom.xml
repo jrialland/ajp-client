@@ -46,6 +46,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.7</java.version>
+		<netty.version>4.0.12.Final</netty.version>
 		<tomcat.version>7.0.42</tomcat.version>
 		<slf4j.version>1.7.6</slf4j.version>
 		<maven.jacoco.version>0.7.2.201409121644</maven.jacoco.version>
@@ -126,8 +127,8 @@
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>
-			<artifactId>netty-all</artifactId>
-			<version>4.0.23.Final</version>
+			<artifactId>netty-handler</artifactId>
+			<version>${netty.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.r358.poolnetty</groupId>
