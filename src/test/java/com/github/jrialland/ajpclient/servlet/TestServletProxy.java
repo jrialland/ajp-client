@@ -135,7 +135,7 @@ public class TestServletProxy extends AbstractTomcatTest {
 	/**
 	 * Test that is fails with a request bigger that 8k
 	 */
-	@Test(expected = ServletException.class)
+	@Test
 	public void testTooBigRequest() throws Exception {
 
 		final MockHttpServletRequest request = new MockHttpServletRequest();
@@ -152,6 +152,7 @@ public class TestServletProxy extends AbstractTomcatTest {
 
 		final MockHttpServletResponse response = new MockHttpServletResponse();
 		AjpServletProxy.forHost("localhost", getPort()).forward(request, response);
+		Assert.assertEquals(HttpServletResponse.SC_BAD_REQUEST, response.getStatus());
 	}
 
 	@Test
@@ -170,6 +171,5 @@ public class TestServletProxy extends AbstractTomcatTest {
 			AjpServletProxy.forHost("localhost", getPort()).forward(request, response);
 			Assert.assertEquals(HttpServletResponse.SC_OK, response.getStatus());
 		}
-
 	}
 }

@@ -220,12 +220,13 @@ public class AjpServletProxy {
 		final ResponseWrapper ajpResponse = new ResponseWrapper(response);
 		try {
 			channelPool.execute(new Forward(ajpRequest, ajpResponse, timeout, unit), reuseConnection);
-		} catch (final IOException ioException) {
-			throw ioException;
 		} catch (final InterruptedException e) {
 			// be silent about this kind of exceptions
+		} catch (final IllegalArgumentException e) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
 		} catch (final Exception e) {
-			throw new ServletException(e);
+			getLog().error("could not proxy request", e);
+			response.sendError(HttpServletResponse.SC_BAD_GATEWAY);
 		}
 	}
 

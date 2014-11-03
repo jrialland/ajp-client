@@ -17,12 +17,15 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.r358.poolnetty.common.BootstrapProvider;
 import org.r358.poolnetty.common.ConnectionInfo;
 import org.r358.poolnetty.common.ConnectionInfoProvider;
 import org.r358.poolnetty.common.ContextExceptionHandler;
+import org.r358.poolnetty.common.LeaseListener;
+import org.r358.poolnetty.common.LeasedChannel;
 import org.r358.poolnetty.common.PoolProvider;
 import org.r358.poolnetty.pool.NettyConnectionPool;
 import org.r358.poolnetty.pool.NettyConnectionPoolBuilder;
@@ -120,6 +123,26 @@ public class ChannelPool {
 	}
 
 	/**
+	 * Gets the channel just as
+	 * {@link NettyConnectionPool#lease(int, TimeUnit, Object)} does, but better
+	 * handle exceptions when we cannot obtain a channel for some reason.
+	 *
+	 * @return a channel obtained from the pool
+	 * @throws Exception
+	 */
+	protected Channel getChannel() throws Exception {
+		final Throwable[] th = new Throwable[1];
+		final Future<LeasedChannel> future = ncp.leaseAsync(5, TimeUnit.SECONDS, null, new LeaseListener() {
+
+			@Override
+			public void leaseRequest(final boolean success, final LeasedChannel channel, final Throwable t) {
+				th[0] = t;
+			}
+		});
+		return future.get(5, TimeUnit.SECONDS);
+	}
+
+	/**
 	 * Handles channel picking/returning from/to the pool. the 3 methods
 	 * {@link ChannelCallback#beforeUse(Channel)},
 	 * {@link ChannelCallback#__doWithChannel(Channel)} and
@@ -132,7 +155,9 @@ public class ChannelPool {
 	 */
 	protected void execute(final ChannelCallback callback, final boolean reuseConnection) throws Exception {
 		getLog().debug("getting channel from the connection pool ...");
-		final Channel channel = ncp.lease(1, TimeUnit.SECONDS, null);
+
+		final Channel channel = getChannel();
+
 		getLog().debug("... obtained " + channel);
 
 		boolean reuse = false;
@@ -178,6 +203,7 @@ public class ChannelPool {
 			ncp.stop(true);
 		}
 		ncp = createPool(host, port, monitor);
+
 		try {
 			ncp.start(1000, TimeUnit.MILLISECONDS);
 		} catch (final Exception e) {
