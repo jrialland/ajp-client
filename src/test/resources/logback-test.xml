@@ -5,9 +5,9 @@
 			<pattern>%-5level %logger{35} - %msg%n</pattern>
 		</encoder>
 	</appender>
-	<logger level="WARN" name="io.netty" />
+	<logger level="WARN" name="io.netty"/>
 	<logger level="ERROR" name="org.apache.catalina"/>
 	<root level="WARN">
-		<appender-ref ref="STDOUT" />
+		<appender-ref ref="STDOUT"/>
 	</root>
 </configuration>
