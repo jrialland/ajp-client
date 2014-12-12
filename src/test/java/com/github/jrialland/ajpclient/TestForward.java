@@ -29,8 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.github.jrialland.ajpclient.impl.mock.MockForwardRequest;
-import com.github.jrialland.ajpclient.impl.mock.MockForwardResponse;
 import com.github.jrialland.ajpclient.pool.Channels;
 
 public class TestForward extends AbstractTomcatTest {
@@ -84,8 +82,8 @@ public class TestForward extends AbstractTomcatTest {
 
 	@Test
 	public void testBigFile() throws Exception {
-		final MockForwardRequest request = new MockForwardRequest();
-		final MockForwardResponse response = new MockForwardResponse();
+		final SimpleForwardRequest request = new SimpleForwardRequest();
+		final SimpleForwardResponse response = new SimpleForwardResponse();
 		request.setRequestUri("/dizzy.mp4");
 
 		final Channel channel = Channels.connect("localhost", getPort());
@@ -105,8 +103,8 @@ public class TestForward extends AbstractTomcatTest {
 	@Test
 	public void testRealError404() throws Exception {
 
-		final MockForwardRequest request = new MockForwardRequest();
-		final MockForwardResponse response = new MockForwardResponse();
+		final SimpleForwardRequest request = new SimpleForwardRequest();
+		final SimpleForwardResponse response = new SimpleForwardResponse();
 
 		request.setRequestUri("/path/to/nonexisting/file.html");
 
@@ -120,8 +118,8 @@ public class TestForward extends AbstractTomcatTest {
 	 */
 	@Test
 	public void testServletError404() throws Exception {
-		final MockForwardRequest request = new MockForwardRequest();
-		final MockForwardResponse response = new MockForwardResponse();
+		final SimpleForwardRequest request = new SimpleForwardRequest();
+		final SimpleForwardResponse response = new SimpleForwardResponse();
 
 		request.setRequestUri("/respondError?code=404");
 
@@ -131,8 +129,8 @@ public class TestForward extends AbstractTomcatTest {
 
 	@Test
 	public void testError500() throws Exception {
-		final MockForwardRequest request = new MockForwardRequest();
-		final MockForwardResponse response = new MockForwardResponse();
+		final SimpleForwardRequest request = new SimpleForwardRequest();
+		final SimpleForwardResponse response = new SimpleForwardResponse();
 
 		request.setRequestUri("/error500");
 		final Channel channel = Channels.connect("localhost", getPort());
@@ -142,8 +140,8 @@ public class TestForward extends AbstractTomcatTest {
 	@Test
 	public void testFormPost() throws Exception {
 
-		final MockForwardRequest request = new MockForwardRequest();
-		final MockForwardResponse response = new MockForwardResponse();
+		final SimpleForwardRequest request = new SimpleForwardRequest();
+		final SimpleForwardResponse response = new SimpleForwardResponse();
 
 		request.setMethod("POST");
 		request.setRequestUri("/formPost");
@@ -160,8 +158,8 @@ public class TestForward extends AbstractTomcatTest {
 
 	@Test
 	public void testRawPost() throws Exception {
-		final MockForwardRequest request = new MockForwardRequest();
-		final MockForwardResponse response = new MockForwardResponse();
+		final SimpleForwardRequest request = new SimpleForwardRequest();
+		final SimpleForwardResponse response = new SimpleForwardResponse();
 
 		request.setMethod("POST");
 		request.setRequestUri("/rawPost");

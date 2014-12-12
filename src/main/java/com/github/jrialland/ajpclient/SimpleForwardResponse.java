@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jrialland.ajpclient.impl.mock;
+package com.github.jrialland.ajpclient;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,9 +19,7 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.github.jrialland.ajpclient.ForwardResponse;
-
-public class MockForwardResponse implements ForwardResponse {
+public class SimpleForwardResponse implements ForwardResponse {
 
 	private int statusCode = 0;
 

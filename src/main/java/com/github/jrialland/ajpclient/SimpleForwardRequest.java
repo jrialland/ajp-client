@@ -10,7 +10,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.jrialland.ajpclient.impl.mock;
+package com.github.jrialland.ajpclient;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -20,12 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.github.jrialland.ajpclient.Attribute;
-import com.github.jrialland.ajpclient.ForwardRequest;
-import com.github.jrialland.ajpclient.Header;
 import com.github.jrialland.ajpclient.impl.enums.RequestMethod;
 
-public class MockForwardRequest implements ForwardRequest {
+public class SimpleForwardRequest implements ForwardRequest {
 
 	private RequestMethod method = RequestMethod.GET;
 

@@ -26,8 +26,8 @@ import org.junit.Test;
 
 import com.github.jrialland.ajpclient.AbstractTomcatTest;
 import com.github.jrialland.ajpclient.Forward;
-import com.github.jrialland.ajpclient.impl.mock.MockForwardRequest;
-import com.github.jrialland.ajpclient.impl.mock.MockForwardResponse;
+import com.github.jrialland.ajpclient.SimpleForwardRequest;
+import com.github.jrialland.ajpclient.SimpleForwardResponse;
 
 public class ChannelPoolTest extends AbstractTomcatTest {
 
@@ -49,8 +49,8 @@ public class ChannelPoolTest extends AbstractTomcatTest {
 			@Override
 			public Exception call() throws Exception {
 				try {
-					final MockForwardRequest request = new MockForwardRequest();
-					final MockForwardResponse response = new MockForwardResponse();
+					final SimpleForwardRequest request = new SimpleForwardRequest();
+					final SimpleForwardResponse response = new SimpleForwardResponse();
 					request.setRequestUri("/dizzy.mp4");
 					Channels.getPool("localhost", getPort()).execute(new Forward(request, response), true);
 					counter.incrementAndGet();

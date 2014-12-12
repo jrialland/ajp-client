@@ -1,5 +1,5 @@
 /* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
+import java.net.URI;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.Executors;
@@ -75,6 +76,17 @@ public final class Channels {
 		return pool;
 	}
 
+	public static ChannelPool getPool(final URI uri) throws Exception {
+		if (!uri.getScheme().equals("ajp")) {
+			throw new IllegalArgumentException("only ajp:// uris are supported");
+		}
+		int port = uri.getPort();
+		if (port < 0) {
+			port = 8009;
+		}
+		return getPool(uri.getHost(), uri.getPort());
+	}
+
 	public static void setEventLoopGroup(final EventLoopGroup eventLoopGroup) {
 		instance.eventLoopGroup = eventLoopGroup;
 	}
@@ -98,15 +110,16 @@ public final class Channels {
 		return connect(host, port, getEventLoopGroup());
 	}
 
-	public static Bootstrap newBootStrap(String host, int port) {
+	public static Bootstrap newBootStrap(final String host, final int port) {
 		return newBootStrap(host, port, getEventLoopGroup());
 	}
 
-	public static Bootstrap newBootStrap(String host, int port, EventLoopGroup eventLoopGroup) {
-		return new Bootstrap().group(getEventLoopGroup()).remoteAddress(host, port).channel(NioSocketChannel.class).option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.AUTO_READ, true);
+	public static Bootstrap newBootStrap(final String host, final int port, final EventLoopGroup eventLoopGroup) {
+		return new Bootstrap().group(getEventLoopGroup()).remoteAddress(host, port).channel(NioSocketChannel.class)
+				.option(ChannelOption.SO_KEEPALIVE, true).option(ChannelOption.AUTO_READ, true);
 	}
 
-	public static void initChannel(Channel channel) {
+	public static void initChannel(final Channel channel) {
 		if (getLog().isTraceEnabled()) {
 			channel.pipeline().addLast(new OutgoingFramesLogger());
 		}
@@ -117,7 +130,7 @@ public final class Channels {
 		final Bootstrap bootstrap = newBootStrap(host, port, eventLoopGroup);
 		bootstrap.handler(new ChannelInitializer<Channel>() {
 			@Override
-			protected void initChannel(Channel ch) throws Exception {
+			protected void initChannel(final Channel ch) throws Exception {
 				Channels.initChannel(ch);
 			}
 		});
