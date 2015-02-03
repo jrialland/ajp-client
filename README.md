@@ -67,3 +67,23 @@ Will use a socket channel picked from a pool, allowing the reuse of sockets amon
 	HttpServetResponse response = ...
 	AjpServletProxy.forHost("localhost", 8009).forward(request, response);
 ```
+
+AJP header size limit
+---------------------
+
+  The protocol does not allow request headers to be greater that 8K, which is ok most of the time.
+to overcome this limit, at least with tomcat 5.5.21+ and Tomcat 6.0.1+
+
+1) add the ``packetSize`` attribute to the connector's declaration
+
+```xml
+    <Connector port="8009" protocol="AJP/1.3"
+               packetSize="20000"
+               redirectPort="8443" ></Connector>
+```
+
+2) Change the limit in Apache Server configuration :
+```
+ProxyIOBufferSize 19000
+LimitRequestFieldsize 18000
+```
