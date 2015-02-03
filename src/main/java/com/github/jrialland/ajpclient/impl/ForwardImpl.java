@@ -187,10 +187,12 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 				actual = Math.max(0, in.read(buf, 6, length));
 			} catch (final EOFException e) {
 				// 'actual' will be set to zero in this case
+			} catch (final IndexOutOfBoundsException e) {
+				throw new IOException(String.format("could not read buffer (bufLen=%s, offset=%s length=%s)", buf.length, 6, length));
 			}
 		}
 
-		// do not send anything is this is the first chunk and there is nothing
+		// do not send anything when this is the first chunk and there is nothing
 		// to send
 		if (firstChunk && actual == 0) {
 			return;
@@ -253,7 +255,7 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 
 	@Override
 	public void handleGetBodyChunkMessage(final int requestedLength) throws Exception {
-		sendChunk(false, request.getRequestBody(), requestedLength, getCurrentChannel());
+		sendChunk(false, request.getRequestBody(), Math.min(MAX_SEND_CHUNK_SIZE, Math.max(0, requestedLength)), getCurrentChannel());
 	}
 
 	@Override
