@@ -28,11 +28,11 @@ echo "Release Version : " $releaseVersion
 #change version in the pom
 mvn versions:set -DnewVersion=$releaseVersion
 if [ $? -ne 0 ]; then
-	mv pom.versionsBackup pom.xml
+	mv pom.xml.versionsBackup pom.xml
 	echo 'versions:set failed' 1>&2
 	exit 1
 fi
-rm -f pom.versionsBackup
+rm -f pom.xml.versionsBackup
 
 #create a git tag
 git commit pom.xml -m"releasing to version $releaseVersion"
@@ -56,7 +56,7 @@ echo "New Version : " $newVersion
 
 #change version in pom
 mvn versions:set -DnewVersion=$newVersion
-rm -f pom.versionsBackup
+rm -f pom.xml.versionsBackup
 
 #commit
 git commit pom.xml -m"switching version to $newVersion after the release of $releaseVersion"
