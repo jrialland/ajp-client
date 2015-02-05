@@ -10,7 +10,7 @@ import subprocess
 import shutil
 
 script_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
-project_dir = os.path.join(script_dir, '..')
+project_dir = os.path.abspath(os.path.join(script_dir, '..'))
 
 path_to_eclipse = None
 if path_to_eclipse is None and 'linux' in sys.platform:
