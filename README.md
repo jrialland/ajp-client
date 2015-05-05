@@ -84,6 +84,6 @@ to overcome this limit, at least with tomcat 5.5.21+ and Tomcat 6.0.1+
 
 2) Change the limit in Apache Server configuration :
 ```
-ProxyIOBufferSize 19000
+ProxyIOBufferSize 19000 
 LimitRequestFieldsize 18000
 ```
