@@ -1,4 +1,4 @@
-/* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
+/* Copyright (c) 2014-2016 Julien Rialland <julien.rialland@gmail.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ package com.github.jrialland.ajpclient;
 import io.netty.channel.Channel;
 
 import java.net.ConnectException;
+import java.net.UnknownHostException;
 import java.nio.channels.UnresolvedAddressException;
 import java.util.concurrent.TimeUnit;
 
@@ -38,10 +39,16 @@ public class TestCPing extends AbstractTomcatTest {
 		Assert.assertTrue(pong);
 	}
 
-	@Test(expected = UnresolvedAddressException.class)
 	public void testUnknownHost() throws Exception {
-		final Channel channel = Channels.connect("unknownHost", getPort());
-		new CPing(2, TimeUnit.SECONDS).execute(channel);
+		try {
+		    final Channel channel = Channels.connect("unknownHost", getPort());
+		    new CPing(2, TimeUnit.SECONDS).execute(channel);
+		    Assert.fail("an exception should have been raised");
+		} catch(UnresolvedAddressException|UnknownHostException e) {
+		  
+		} catch(Exception e) {
+		  Assert.fail("bad exception type");
+		}
 	}
 
 	@Test(expected = ConnectException.class)

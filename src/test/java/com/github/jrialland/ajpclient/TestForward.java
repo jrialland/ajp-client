@@ -1,4 +1,4 @@
-/* Copyright (c) 2014 Julien Rialland <julien.rialland@gmail.com>
+/* Copyright (c) 2014-2016 Julien Rialland <julien.rialland@gmail.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 
 import javax.servlet.ServletException;
@@ -91,7 +92,7 @@ public class TestForward extends AbstractTomcatTest {
 		new Forward(request, response).execute(channel);
 
 		Assert.assertEquals(200, response.getStatusCode());
-		Assert.assertEquals("OK", response.getStatusMessage());
+		Assert.assertTrue(Arrays.asList("OK", "200").contains(response.getStatusMessage()));
 		Assert.assertEquals("1595696", response.getHeaders().get("Content-Length"));
 		Assert.assertEquals(DIZZY_MP4_MD5SUM, computeMd5(response.getResponseBodyAsStream()));
 	}
@@ -153,7 +154,7 @@ public class TestForward extends AbstractTomcatTest {
 		new Forward(request, response).execute(channel);
 
 		Assert.assertEquals(200, response.getStatusCode());
-		Assert.assertEquals("OK", response.getStatusMessage());
+		Assert.assertTrue(Arrays.asList("OK", "200").contains(response.getStatusMessage()));
 		Assert.assertFalse(response.getResponseBodyAsString().isEmpty());
 	}
 
@@ -171,7 +172,7 @@ public class TestForward extends AbstractTomcatTest {
 		new Forward(request, response).execute(channel);
 
 		Assert.assertEquals(200, response.getStatusCode());
-		Assert.assertEquals("OK", response.getStatusMessage());
+		Assert.assertTrue(Arrays.asList("OK", "200").contains(response.getStatusMessage()));
 		Assert.assertEquals(DIZZY_MP4_MD5SUM, response.getResponseBodyAsString());
 
 	}

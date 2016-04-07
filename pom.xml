@@ -45,9 +45,10 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.7</java.version>
-		<netty.version>4.0.12.Final</netty.version>
-		<tomcat.version>7.0.42</tomcat.version>
-		<slf4j.version>1.7.6</slf4j.version>
+		<netty.version>4.1.0.CR6</netty.version>
+		<spring.version>4.2.5.RELEASE</spring.version>
+		<tomcat.version>8.5.0</tomcat.version>
+		<slf4j.version>1.7.21</slf4j.version>
 		<maven.jacoco.version>0.7.2.201409121644</maven.jacoco.version>
 	</properties>
 	<repositories>
@@ -66,7 +67,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
+			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -88,8 +89,20 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-logging</groupId>
+					<artifactId>commons-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
-			<version>4.1.1.RELEASE</version>
+			<version>${spring.version}</version>
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
