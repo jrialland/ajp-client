@@ -308,6 +308,14 @@
 							</execution>
 						</executions>
 					</plugin>
+					<!--
+						todo : add username and password in settings.xml :
+						    <server>
+							  <id>sonatype-nexus-staging</id>
+							  <username>deployment</username>
+							  <password>deployment123</password>
+							</server>
+					-->
 					<plugin>
 						<groupId>org.sonatype.plugins</groupId>
 						<artifactId>nexus-staging-maven-plugin</artifactId>
