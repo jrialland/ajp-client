@@ -24,8 +24,8 @@ Simple Usecases :
 * Making a cPing request (checks server availability)
 
 ```java
-	import com.github.jrialland.apclient.pool.Channels;
-	import com.github.jrialland.apclient.CPing;
+	import com.github.jrialland.ajpclient.pool.Channels;
+	import com.github.jrialland.ajpclient.CPing;
 
 	...
 
@@ -39,8 +39,8 @@ Simple Usecases :
 * Making a forward request (serves web content)
 
 ```java
-	import com.github.jrialland.apclient.pool.Channels;
-	import com.github.jrialland.apclient.Forward;
+	import com.github.jrialland.ajpclient.pool.Channels;
+	import com.github.jrialland.ajpclient.Forward;
 
 	//send a forward request
 	new Forward(ajpRequest, ajpResponse).execute("localhost", 8009);
@@ -52,8 +52,8 @@ Simple Usecases :
 Socket pools handle the creation and destruction of multiple connections automatically.
 
 ```java
-	import com.github.jrialland.apclient.pool.Channels;
-	import com.github.jrialland.apclient.Forward;
+	import com.github.jrialland.ajpclient.pool.Channels;
+	import com.github.jrialland.ajpclient.Forward;
 	
 	Channels.getPool("localhost", 8009).execute(new Forward(ajpRequest, ajpResponse));
 	
@@ -65,10 +65,12 @@ Will use a socket channel picked from a pool, allowing the reuse of sockets amon
 ```java
 	import javax.servlet.http.HttpServletRequest;
 	import javax.servlet.http.HttpServletResponse;
-	import com.github.jrialland.apclient.servlet.AjpServletProxy;
+	import com.github.jrialland.ajpclient.servlet.AjpServletProxy;
 	
 	HttpServletRequest request = ...
 	HttpServetResponse response = ...
+	
+	//forward an servlet request to another server
 	AjpServletProxy.forHost("localhost", 8009).forward(request, response);
 ```
 
