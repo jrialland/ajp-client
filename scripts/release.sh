@@ -39,8 +39,6 @@ git commit pom.xml -m"releasing to version $releaseVersion"
 git tag "$releaseVersion"
 git push origin --tags
 
-#deploy the release version
-mvn clean deploy
 
 #update minor version
 python > version.txt << "_EOF"
@@ -49,6 +47,11 @@ v = os.environ['releaseVersion'].split('.')
 v[-1] = str( int(v[-1]) +1 )
 print '.'.join(v)+'-SNAPSHOT'
 _EOF
+
+curl https://jitpack.io/#jrialland/ajp-client/$releaseVersion
+
+#deploy the release version
+mvn clean deploy
 
 export newVersion=`cat version.txt`
 rm version.txt
