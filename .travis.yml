@@ -1,6 +1,6 @@
 language: java
 jdk: oraclejdk8
-script: mvn deploy --settings travis-settings.xml
+script: mvn package --settings travis-settings.xml
 after_success: mvn clean test jacoco:report coveralls:report
 env:
   global:
