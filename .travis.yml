@@ -1,11 +1,8 @@
 language: java
 jdk: oraclejdk8
 script: mvn deploy --settings travis-settings.xml
+after_success: mvn clean test jacoco:report coveralls:report
 env:
   global:
-  - secure: K4ZVzEm+r/LWRJfgCAkZq4hH+9kmPVmhRnFRl+9yjxYWFIPcqMykN+VVHRZsKO2kyVLD195p7fBW5sbYDH5A4OSTWyBnBt1hamKLJkdpVcclBWi9EjBd/LXkr2jeFlJGPQFVQeJIkywdalEa6cuFtVD6v6H7PWAKh2xdpljF6xU=
-  - secure: Lc5LkBBKTHyUHDbYALO0VWFmO58d3qcLueAbabqgUxuGbBnJ6HgPWxlh9qik/eWZmRPebRmNGdoAqT96MICq7qSJ1JdCCZLJwzsqZ47QUX/ki/C3NhgyDhaFsTbdbKxJOzVkWZSQR05/LTG3+H3NLKpWZ2xDlVJzct9JeQMSpC4=
-  - secure: MrJQf0ilcw71HcPNApdJ63xlmfk77hn+r+OclbxBIteJCeCvuj1+JnRS3dv+sYQ43obK/tYGedA8UoNK1zxygbXzhAnnXX4VAKDEU9DkSBzzn5di9ffm1wbwrw8CC0ScnRqW8Nan4bn6YM09AG1nHTXd5tlpm2Ij1awIQ58Ku5U=
-  - secure: SuGPzdnxsRkm6W6qE1tbHCbJ4JNppfgrNzf2Lvb0B1pekYgQX6ScnWL7VIbECL+94p3C/7DKw6/vm9HvdkZ6g6RpMKExt2ZfXYcWlFO0U92PT+V7yAgLkeZhmYx4P83gvRialQA3XxOLBWyvl98vlhmul66pT9fHo78u1UkTAMo=
-after_success:
-- mvn clean test jacoco:report coveralls:report
+  - secure: Y+Ff/Yan7z7DsqkPYP5DGP06YCXt8p+pwwTf6rvdPNVxK5zfpa18i92WXCZtoJPmX1vn8EvstmpR0bm/v4KZyWC/WFlktg5IQ6JojMelWBJYWHT9BzXAdh4ytU6Ikn3hokFAU1PaEYwFnmGNevjAlOzokwjw+/X0lZ54of36JMM=
+  - secure: Gzy0OroafmRLogU7kHkJYPG8m7DO9hYlGFhCQPKZ73GIWnL7QOGoHHSdytKJk7C7JNMEpipjO55rNYyUCu1MJ42q93XFEVqoZb5goHoCwGSEHnGjp+pfWaEdkEtAMwAT3xabBAkO2S58Vmd920h950PDGe6y/lhN+aJs17bqj7Y=
