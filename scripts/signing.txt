@@ -1,6 +1,11 @@
+#create a gpg key pair and send to key server
 #gpg --gen-key
 #gpg --list-keys
-##distribute a key : gpg --keyserver hkp://pgp.mit.edu --send-keys C6EED57A
+##gpg --keyserver hkp://pgp.mit.edu --send-keys C6EED57A
 
-mvn gpg:sign-and-deploy-file -DpomFile=target/myapp-1.0.pom Dfile=target/myapp-1.0.jar -Durl=https://user:password@oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=sonatype_oss
+#go to oss.sonatype.org, login and generate a new user token (user profile menu, 'user token' tab)
 
+#deploy to staging repository :
+#mvn gpg:sign-and-deploy-file -DpomFile=target/myapp-1.0.pom Dfile=target/myapp-1.0.jar -Durl=https://user:password@oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=sonatype_oss
+
+#return to oss.sonatype.org, select staging repository (=last item in "Staging repositories" list), choose 'close' button (at the top of the screen)
