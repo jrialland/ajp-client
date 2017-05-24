@@ -1,0 +1,6 @@
+#gpg --gen-key
+#gpg --list-keys
+##distribute a key : gpg --keyserver hkp://pgp.mit.edu --send-keys C6EED57A
+
+mvn gpg:sign-and-deploy-file -DpomFile=target/myapp-1.0.pom Dfile=target/myapp-1.0.jar -Durl=https://user:password@oss.sonatype.org/service/local/staging/deploy/maven2/ -DrepositoryId=sonatype_oss
+
