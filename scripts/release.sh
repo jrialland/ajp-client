@@ -9,8 +9,12 @@ set -e
 #   4. change the project version to x.(y+1)-SNAPSHOT
 #   5. commit the version change
 
+thisscript=$(readlink -m $0)
+thisdir=$(dirname "$thisscript")
+basedir=$(readlink -m "$thisdir"/..)
+
 #go to the root directory
-cd ..
+cd $basedir
 
 #fetch the current snapshot version
 python > version.txt << "_EOF"
