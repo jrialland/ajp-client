@@ -17,9 +17,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import com.github.jrialland.ajpclient.impl.enums.RequestMethod;
 
@@ -43,7 +42,7 @@ public class SimpleForwardRequest implements ForwardRequest {
 
 	List<Header> headers = new ArrayList<Header>();
 
-	private Map<Attribute, String> attributes = new TreeMap<Attribute, String>();
+	private List<Attribute> attributes = new ArrayList<>();
 
 	private InputStream requestBody;
 
@@ -60,7 +59,7 @@ public class SimpleForwardRequest implements ForwardRequest {
 		this.method = RequestMethod.forMethod(method);
 		if (this.method == null) {
 			this.method = RequestMethod.JK_STORED;
-			attributes.put(Attribute.stored_method, method);
+			attributes.add(new Attribute(AttributeType.stored_method, Collections.singletonList(method)));
 		}
 	}
 
@@ -119,11 +118,11 @@ public class SimpleForwardRequest implements ForwardRequest {
 	}
 
 	@Override
-	public Map<Attribute, String> getAttributes() {
+	public List<Attribute> getAttributes() {
 		return attributes;
 	}
 
-	public void setAttributes(final Map<Attribute, String> attributes) {
+	public void setAttributes(final List<Attribute> attributes) {
 		this.attributes = attributes;
 	}
 

@@ -18,12 +18,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
@@ -35,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.jrialland.ajpclient.Attribute;
+import com.github.jrialland.ajpclient.AttributeType;
 import com.github.jrialland.ajpclient.Forward;
 import com.github.jrialland.ajpclient.ForwardRequest;
 import com.github.jrialland.ajpclient.ForwardResponse;
@@ -63,7 +63,7 @@ public class AjpServletProxy {
 
 		private final List<Header> headers = new LinkedList<Header>();
 
-		private final Map<Attribute, String> attributes = new TreeMap<Attribute, String>();
+		private final List<Attribute> attributes = new ArrayList<>();
 
 		public RequestWrapper(final HttpServletRequest request) throws IOException {
 
@@ -72,7 +72,7 @@ public class AjpServletProxy {
 			requestMethod = RequestMethod.forMethod(request.getMethod());
 			if (requestMethod == null) {
 				requestMethod = RequestMethod.JK_STORED;
-				attributes.put(Attribute.stored_method, request.getMethod());
+				attributes.add(new Attribute(AttributeType.stored_method, Collections.singletonList(request.getMethod())));
 			}
 
 			boolean hasContentLength = false;
@@ -90,14 +90,14 @@ public class AjpServletProxy {
 			}
 
 			if (request.getQueryString() != null) {
-				attributes.put(Attribute.query_string, request.getQueryString());
+				attributes.add(new Attribute(AttributeType.query_string, Collections.singletonList(request.getQueryString())));
 			}
 
 			if (request.getRemoteUser() != null) {
-				attributes.put(Attribute.remote_user, request.getRemoteUser());
+				attributes.add(new Attribute(AttributeType.remote_user, Collections.singletonList(request.getRemoteUser())));
 			}
 
-			attributes.put(Attribute.servlet_path, request.getServletPath());
+			attributes.add(new Attribute(AttributeType.servlet_path, Collections.singletonList(request.getServletPath())));
 
 			in = new BufferedInputStream(request.getInputStream());
 		}
@@ -143,7 +143,7 @@ public class AjpServletProxy {
 		}
 
 		@Override
-		public Map<Attribute, String> getAttributes() {
+		public List<Attribute> getAttributes() {
 			return attributes;
 		}
 

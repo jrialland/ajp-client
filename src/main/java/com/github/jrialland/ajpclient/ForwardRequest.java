@@ -15,7 +15,7 @@ package com.github.jrialland.ajpclient;
 
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
 import com.github.jrialland.ajpclient.impl.enums.RequestMethod;
 
@@ -47,7 +47,7 @@ public interface ForwardRequest {
 
 	Collection<Header> getHeaders();
 
-	Map<Attribute, String> getAttributes();
+	List<Attribute> getAttributes();
 
 	InputStream getRequestBody();
 }
