@@ -1,5 +1,17 @@
-/target
-/.classpath
-/.project
-/.settings
-/.pydevproject
+target/
+.pydevproject
+
+# Eclipse project files
+.classpath
+.project
+.settings
+.externalToolBuilders
+
+# IntelliJ project files
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# IntelliJ plugin files
+atlassian-ide-plugin.xml
