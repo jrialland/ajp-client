@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.jrialland.ajpclient.Attribute;
-import com.github.jrialland.ajpclient.AttributeType;
+import com.github.jrialland.ajpclient.AttributeFactory;
 import com.github.jrialland.ajpclient.Forward;
 import com.github.jrialland.ajpclient.ForwardRequest;
 import com.github.jrialland.ajpclient.ForwardResponse;
@@ -72,7 +72,7 @@ public class AjpServletProxy {
 			requestMethod = RequestMethod.forMethod(request.getMethod());
 			if (requestMethod == null) {
 				requestMethod = RequestMethod.JK_STORED;
-				attributes.add(new Attribute(AttributeType.stored_method, Collections.singletonList(request.getMethod())));
+				attributes.add(AttributeFactory.createStoredMethodAttribute(request.getMethod()));
 			}
 
 			boolean hasContentLength = false;
@@ -90,14 +90,14 @@ public class AjpServletProxy {
 			}
 
 			if (request.getQueryString() != null) {
-				attributes.add(new Attribute(AttributeType.query_string, Collections.singletonList(request.getQueryString())));
+				attributes.add(AttributeFactory.createQueryStringAttribute(request.getQueryString()));
 			}
 
 			if (request.getRemoteUser() != null) {
-				attributes.add(new Attribute(AttributeType.remote_user, Collections.singletonList(request.getRemoteUser())));
+				attributes.add(AttributeFactory.createRemoteUserAttribute(request.getRemoteUser()));
 			}
 
-			attributes.add(new Attribute(AttributeType.servlet_path, Collections.singletonList(request.getServletPath())));
+			attributes.add(AttributeFactory.createServletPathAttribute(request.getServletPath()));
 
 			in = new BufferedInputStream(request.getInputStream());
 		}

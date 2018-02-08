@@ -1,5 +1,5 @@
 /* Copyright (c) 2014-2017 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -9,7 +9,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 package com.github.jrialland.ajpclient;
 
@@ -22,11 +22,20 @@ package com.github.jrialland.ajpclient;
  */
 public enum AttributeType {
 
-	// @formatter:off
-	context(0x01), // unused
-	servlet_path(0x02), // unused
-	remote_user(0x03), auth_type(0x04), query_string(0x05), route(0x06), ssl_cert(0x07), ssl_cipher(0x08), ssl_session(0x09), req_attribute(
-			0x0A), ssl_key_size(0x0B), secret(0x0C), stored_method(0x0D);
+  // @formatter:off
+	CONTEXT(0x01), // unused
+	SERVLET_PATH(0x02), // unused
+	REMOTE_USER(0x03),
+	AUTH_TYPE(0x04),
+	QUERY_STRING(0x05),
+	ROUTE(0x06),
+	SSL_CERT(0x07),
+	SSL_CIPHER(0x08),
+	SSL_SESSION(0x09),
+	REQ_ATTRIBUTE(0x0A),
+  SSL_KEY_SIZE(0x0B),
+  SECRET(0x0C),
+	STORED_METHOD(0x0D);
 	// @formatter:on
 
 	private final int code;
