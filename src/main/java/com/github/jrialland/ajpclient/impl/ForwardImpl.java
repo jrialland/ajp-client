@@ -28,6 +28,7 @@ import com.github.jrialland.ajpclient.ForwardRequest;
 import com.github.jrialland.ajpclient.ForwardResponse;
 import com.github.jrialland.ajpclient.Header;
 import com.github.jrialland.ajpclient.impl.enums.RequestHeader;
+import com.github.jrialland.ajpclient.impl.enums.RequestMethod;
 import com.github.jrialland.ajpclient.pool.Buffers;
 import com.github.jrialland.ajpclient.pool.ChannelCallback;
 import io.netty.buffer.ByteBuf;
@@ -98,7 +99,7 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 			}
 		}
 
-		if (request.getMethod().equals("POST")) {
+		if (request.getMethod().equals(RequestMethod.POST)) {
 			if (contentLength == null) {
 				if (transferEncoding == null || !transferEncoding.equals("chunked")) {
 					getLog().warn("POST request without a Content-Length");
