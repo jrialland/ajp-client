@@ -17,7 +17,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import com.github.jrialland.ajpclient.impl.enums.RequestMethod;
@@ -59,7 +58,7 @@ public class SimpleForwardRequest implements ForwardRequest {
 		this.method = RequestMethod.forMethod(method);
 		if (this.method == null) {
 			this.method = RequestMethod.JK_STORED;
-			attributes.add(new Attribute(AttributeType.stored_method, Collections.singletonList(method)));
+			attributes.add(AttributeFactory.createStoredMethodAttribute(method));
 		}
 	}
 

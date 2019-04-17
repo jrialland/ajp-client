@@ -1,5 +1,5 @@
 /* Copyright (c) 2014-2017 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -9,22 +9,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 package com.github.jrialland.ajpclient;
 
-import io.netty.channel.Channel;
-
-import java.net.ConnectException;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.channels.UnresolvedAddressException;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import com.github.jrialland.ajpclient.CPing;
 import com.github.jrialland.ajpclient.pool.Channels;
+import io.netty.channel.Channel;
 
 public class TestCPing extends AbstractTomcatTest {
 
@@ -34,11 +33,12 @@ public class TestCPing extends AbstractTomcatTest {
 
 	@Test
 	public void testCping() throws Exception {
-
 		final boolean pong = new CPing(2, TimeUnit.SECONDS).execute("localhost", getPort());
 		Assert.assertTrue(pong);
 	}
 
+	@Ignore
+	@Test
 	public void testUnknownHost() throws Exception {
 		try {
 		    final Channel channel = Channels.connect("unknownHost", getPort());
@@ -51,7 +51,7 @@ public class TestCPing extends AbstractTomcatTest {
 		}
 	}
 
-	@Test(expected = ConnectException.class)
+	@Test(expected = SocketException.class)
 	public void testWrongPort() throws Exception {
 		final Channel channel = Channels.connect("localhost", getPort() + 1);
 		new CPing(2, TimeUnit.SECONDS).execute(channel);
