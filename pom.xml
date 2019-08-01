@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.sonatype.oss</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>7</version>
+    <version>9</version>
   </parent>
   <groupId>com.github.jrialland</groupId>
   <artifactId>ajpclient</artifactId>
@@ -49,7 +49,7 @@
     <spring.version>4.3.13.RELEASE</spring.version>
     <tomcat.version>8.5.40</tomcat.version>
     <slf4j.version>1.7.25</slf4j.version>
-    <maven.jacoco.version>0.7.2.201409121644</maven.jacoco.version>
+    <maven.jacoco.version>0.8.4</maven.jacoco.version>
   </properties>
   <repositories>
     <repository>
@@ -159,7 +159,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
+        <version>3.8.1</version>
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
@@ -168,7 +168,7 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>1.4.0</version>
+        <version>4.2.0</version>
         <extensions>true</extensions>
         <configuration>
           <instructions>
@@ -181,25 +181,10 @@
           </instructions>
         </configuration>
       </plugin>
-<!--
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
--->
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
-        <version>0.11</version>
+        <version>0.13</version>
         <executions>
           <execution>
             <phase>verify</phase>
@@ -221,7 +206,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>2.2.1</version>
+        <version>3.1.0</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -247,7 +232,7 @@
       <plugin>
         <groupId>org.eluder.coveralls</groupId>
         <artifactId>coveralls-maven-plugin</artifactId>
-        <version>3.0.1</version>
+        <version>4.3.0</version>
       </plugin>
     </plugins>
     <pluginManagement>
@@ -293,7 +278,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.9.1</version>
+            <version>3.1.1</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -336,6 +321,16 @@
               <autoReleaseAfterClose>true</autoReleaseAfterClose>
             </configuration>
           </plugin>
+		
+            <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.0.0-M3</version>
+                    <configuration>
+                            <forkCount>0</forkCount>
+                            <reuseForks>true</reuseForks>
+                    </configuration>
+            </plugin>
         </plugins>
       </build>
     </profile>
