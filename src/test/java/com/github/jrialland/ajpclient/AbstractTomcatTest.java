@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2017 Julien Rialland <julien.rialland@gmail.com>
+/* Copyright (c) 2014-2019 Julien Rialland <julien.rialland@gmail.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
+import java.util.Base64;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -35,7 +36,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.DatatypeConverter;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
@@ -208,7 +208,7 @@ public abstract class AbstractTomcatTest {
 			while ((c = is.read(buf)) > -1) {
 				md5.update(buf, 0, c);
 			}
-			return DatatypeConverter.printBase64Binary(md5.digest());
+			return new String(Base64.getEncoder().encode(md5.digest()));
 		} catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
