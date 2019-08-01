@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2017 Julien Rialland <julien.rialland@gmail.com>
+/* Copyright (c) 2014-2019 Julien Rialland <julien.rialland@gmail.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +31,8 @@ public class OutgoingFramesLogger extends ChannelOutboundHandlerAdapter {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(OutgoingFramesLogger.class);
 
+	private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
+	
 	private static final Logger getLog() {
 		return LOGGER;
 	}
@@ -62,7 +62,13 @@ public class OutgoingFramesLogger extends ChannelOutboundHandlerAdapter {
 	}
 
 	private static final String bytesToHex(final byte[] data) {
-		return DatatypeConverter.printHexBinary(data);
+    		char[] hexChars = new char[bytes.length * 2];
+    		for (int j = 0; j < bytes.length; j++) {
+        		int v = bytes[j] & 0xFF;
+        		hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+        		hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+    		}
+    		return new String(hexChars);
 	}
 
 }
