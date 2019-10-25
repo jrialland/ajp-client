@@ -180,13 +180,10 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 	}
 
 	protected String readString(final ByteBuf in) {
-		in.markReaderIndex();
-		final int b0 = in.readUnsignedByte();
-		if (b0 == 0xff) {
+		final short length = in.readShort();
+		if (length < 0) {
 			return null;
 		}
-		in.resetReaderIndex();
-		final int length = in.readUnsignedShort();
 		final byte[] data = new byte[length];
 		in.readBytes(data);
 
