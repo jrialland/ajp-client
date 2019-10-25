@@ -136,11 +136,23 @@
       <groupId>org.r358.poolnetty</groupId>
       <artifactId>common</artifactId>
       <version>0.1.0.Final</version>
+        <exclusions>
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-all</artifactId>
+        </exclusion>
+      </exclusions>     
     </dependency>
     <dependency>
       <groupId>org.r358.poolnetty</groupId>
       <artifactId>pool</artifactId>
       <version>0.1.0.Final</version>
+        <exclusions>
+        <exclusion>
+          <groupId>io.netty</groupId>
+          <artifactId>netty-all</artifactId>
+        </exclusion>
+      </exclusions>  
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
