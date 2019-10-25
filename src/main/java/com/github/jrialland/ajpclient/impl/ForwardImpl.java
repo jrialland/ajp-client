@@ -233,7 +233,7 @@ public class ForwardImpl extends Conversation implements ChannelCallback, Consta
 	 */
 	protected static void writeString(final String s, final DataOutputStream d) throws IOException {
 		if (s == null) {
-			d.writeByte(0xff);
+			d.writeShort(-1);
 		} else {
 			d.writeShort(s.length());
 			d.write(s.getBytes());
