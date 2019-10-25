@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0 (see [LICENSE](https://github.com
 [![Build Status](https://travis-ci.org/jrialland/ajp-client.svg)](https://travis-ci.org/jrialland/ajp-client)
 [![](https://jitpack.io/v/jrialland/ajp-client.svg)](https://jitpack.io/#jrialland/ajp-client)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.jrialland/ajpclient/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.jrialland/ajpclient)
-[![Known Vulnerabilities](https://snyk.io/test/github/jrialland/ajp-client/badge.svg)]
+[![Known Vulnerabilities](https://snyk.io/test/github/jrialland/ajp-client/badge.svg)](https://snyk.io/test/github/jrialland/ajp-client)
 [![Coverage Status](https://img.shields.io/coveralls/jrialland/ajp-client.svg)](https://coveralls.io/r/jrialland/ajp-client)
 [![Reference Status](https://www.versioneye.com/java/com.github.jrialland:ajpclient/reference_badge.svg?style=flat)](https://www.versioneye.com/java/com.github.jrialland:ajpclient/references)
 
