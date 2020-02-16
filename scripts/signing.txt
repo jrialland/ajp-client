@@ -1,7 +1,7 @@
 #create a gpg key pair and send to key server
 #gpg --gen-key
 #gpg --list-keys
-##gpg --keyserver hkp://pgp.mit.edu --send-keys <the id of my public key>
+##gpg --keyserver hkp://keys.gnupg.net --send-keys <the id of my public key>
 
 #go to oss.sonatype.org, login or generate a new user token (user profile menu, 'user token' tab)
 
