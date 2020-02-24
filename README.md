@@ -1,7 +1,7 @@
 java client library for the Apache JServ Protocol 1.3
 ==============================
 
-Java implementation of an AJP13 protocol client, allowing to send requests to a servlet container using this protocol.
+Java implementation of an [AJP13](https://en.wikipedia.org/wiki/Apache_JServ_Protocol) protocol client, allowing to send requests to a servlet container using this protocol.
 
 It uses [netty](https://netty.io/), and handles [connection pooling](https://github.com/hexiaofeng/poolnetty).
 
