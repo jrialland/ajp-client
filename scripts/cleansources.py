@@ -18,21 +18,21 @@ if path_to_eclipse is None and 'linux' in sys.platform:
     try:
         path_to_eclipse = subprocess.check_output(['which', 'eclipse'])
     except subprocess.CalledProcessError:
-        print 'could find eclipse executable, java indentation will not work'
+        print('could find eclipse executable, java indentation will not work')
 
 
 def keep_backup_file(fnct):
     def wrapperfnct(*args, **kwargs):
         filename = args[0]
-        print 'applying ' + fnct.__name__ + ' on ' + filename
+        print('applying ' + fnct.__name__ + ' on ' + filename)
         if os.path.isfile(filename):
             shutil.copyfile(filename, filename + '~')
             try:
                 result = fnct(*args, **kwargs)
                 os.remove(filename + '~')
                 return result
-            except Exception, e:
-                print 'rollbacking ' + filename
+            except Exception as e:
+                print('rollbacking ' + filename)
                 os.remove(filename)
                 shutil.copy(filename + '~', filename)
                 raise e
@@ -41,7 +41,7 @@ def keep_backup_file(fnct):
 
 @keep_backup_file
 def convert_to_utf8(filename):
-    with file(filename, 'r') as thefile:
+    with open(filename, 'rb') as thefile:
         f = thefile.read()
     data = None
     for enc in ['utf-8', 'windows-1252', 'iso-8859-15']:
@@ -53,7 +53,6 @@ def convert_to_utf8(filename):
     if data is None:
         raise Exception('Could not read %s with any encoding' % (filename,))
     with open(filename, 'w') as thefile:
-        data = data.encode('utf-8')
         data = re.sub('\r\n', '\n', data)
         thefile.write(data)
 
@@ -65,16 +64,16 @@ def xmllint(filename):
         dom = xml.dom.minidom.parse(filename)
         pretty = dom.toprettyxml()
         pretty = '\n'.join(
-            [l for l in pretty.split('\n') if l.strip() <> '']) + '\n'
-        with file(filename, 'w') as f:
+            [l for l in pretty.split('\n') if l.strip()]) + '\n'
+        with open(filename, 'w') as f:
             f.write(pretty)
 
 
 @keep_backup_file
 def dos2unix(filename):
-    with file(filename) as f:
-        data = f.read().replace('\r\n', '\n')
-    with file(filename, 'w') as f:
+    with open(filename, 'rb') as f:
+        data = f.read().decode('utf-8').replace('\r\n', '\n')
+    with open(filename, 'w') as f:
         f.write(data)
 
 
@@ -89,7 +88,7 @@ def to_java_comments(str, isJavadoc=False):
 
 @keep_backup_file
 def replace_java_header(filename, header):
-    with file(filename, 'r') as f:
+    with open(filename, 'r') as f:
         content = f.read()
     for s in ['package ', 'import ', 'public ', 'protected ', 'class ', 'enum ']:
         index = -1
@@ -117,7 +116,7 @@ def format_java_file(javafile, configfile):
         configfile,
         os.path.abspath(javafile)
     ]
-    print cmd
+    print(cmd)
     subprocess.call(cmd)
 
 
@@ -132,14 +131,14 @@ if __name__ == '__main__':
     srcdirs = [os.path.join(project_dir, x) for x in srcdirs]
     srcdirs = [x for x in srcdirs if os.path.isdir(x)]
 
-    newheader = file(os.path.join(script_dir, 'java_header.txt')).read()
+    newheader = open(os.path.join(script_dir, 'java_header.txt')).read()
     formatter_config = os.path.join(script_dir, 'eclipse-formatter-config.xml')
 
     for d in srcdirs:
         for j in rglob(d, '*.java'):
             convert_to_utf8(j)
             replace_java_header(j, newheader)
-            if path_to_eclipse <> None and os.path.isfile(formatter_config):
+            if not(path_to_eclipse is None) and os.path.isfile(formatter_config):
                 format_java_file(j, formatter_config)
             dos2unix(j)
 
