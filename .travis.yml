@@ -1,8 +1,17 @@
 language: java
 jdk: openjdk9
+
+cache:
+  directories:
+  - .autoconf
+  - $HOME/.m2
+
 script: mvn package --settings travis-settings.xml
+
 after_success: mvn clean test jacoco:report coveralls:report
+
 env:
   global:
   - secure: Y+Ff/Yan7z7DsqkPYP5DGP06YCXt8p+pwwTf6rvdPNVxK5zfpa18i92WXCZtoJPmX1vn8EvstmpR0bm/v4KZyWC/WFlktg5IQ6JojMelWBJYWHT9BzXAdh4ytU6Ikn3hokFAU1PaEYwFnmGNevjAlOzokwjw+/X0lZ54of36JMM=
   - secure: Gzy0OroafmRLogU7kHkJYPG8m7DO9hYlGFhCQPKZ73GIWnL7QOGoHHSdytKJk7C7JNMEpipjO55rNYyUCu1MJ42q93XFEVqoZb5goHoCwGSEHnGjp+pfWaEdkEtAMwAT3xabBAkO2S58Vmd920h950PDGe6y/lhN+aJs17bqj7Y=
+
