@@ -129,14 +129,17 @@ public abstract class AbstractTomcatTest {
 			connector.setAttribute("executor", executor);
 		}
 		connector.setAttribute("address", "localhost");
+		if(protocol == Protocol.Ajp) {
+			connector.setAttribute("secretRequired", "false"); //optional shared secret header, as described at https://httpd.apache.org/docs/trunk/mod/mod_proxy_ajp.html
+		}
 		connector.setPort(0);
-		tomcat.setConnector(connector);
-		tomcat.getService().addConnector(connector);
 
+		tomcat.setConnector(connector);
+		tomcat.init();
 		tomcat.start();
 
 		final Path root = Files.createDirectory(tempDir.resolve("ROOT"));
-		final Context rootContext = tomcat.addContext("/", root.toString());
+		final Context rootContext = tomcat.addContext("", root.toString());
 		for (final Entry<String, Servlet> entry : servlets.entrySet()) {
 			Tomcat.addServlet(rootContext, entry.getValue().toString(), entry.getValue()).addMapping(entry.getKey());
 			logger.info(getUri() + entry.getKey() + " => " + entry.getValue());
