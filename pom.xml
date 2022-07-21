@@ -47,7 +47,7 @@
 		<maven.jacoco.version>0.8.5</maven.jacoco.version>
 		<javax.servlet-api.version>3.1.0</javax.servlet-api.version>
 		<junit.version>4.13.1</junit.version>
-		<logback.version>1.2.3</logback.version>
+		<logback.version>1.2.7</logback.version>
 		<netty.version>4.1.45.Final</netty.version>
 		<poolnetty.version>0.1.0.Final</poolnetty.version>
 		<slf4j.version>1.7.30</slf4j.version>
