@@ -7,7 +7,7 @@ It uses [netty](https://netty.io/), and handles [connection pooling](https://git
 
 Licensed under the Apache License, Version 2.0 (see [LICENSE](https://github.com/jrialland/ajp-client/blob/master/LICENSE))
 
-[![Build Status]([https://travis-ci.org/jrialland/ajp-client.svg](https://app.travis-ci.com/jrialland/ajp-client.svg))](https://app.travis-ci.com/github/jrialland/ajp-client)
+[![Build Status]([https://api.travis-ci.com/jrialland/ajp-client.svg](https://app.travis-ci.com/jrialland/ajp-client.svg))](https://app.travis-ci.com/github/jrialland/ajp-client)
 [![](https://jitpack.io/v/jrialland/ajp-client.svg)](https://jitpack.io/#jrialland/ajp-client)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.jrialland/ajpclient/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.jrialland/ajpclient)
 [![Coverage Status](https://img.shields.io/coveralls/jrialland/ajp-client.svg)](https://coveralls.io/r/jrialland/ajp-client)
