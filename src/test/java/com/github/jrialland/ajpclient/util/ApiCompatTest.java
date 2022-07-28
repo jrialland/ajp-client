@@ -11,22 +11,18 @@
  * limitations under the License.
  *
  */
-package com.github.jrialland.ajpclient;
+package com.github.jrialland.ajpclient.util;
 
-import org.junit.jupiter.api.Assertions;
+import com.github.jrialland.ajpclient.servlet.JavaxServletApiCompat;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
 
-import java.util.concurrent.TimeUnit;
-
-public class TestCPing extends AbstractTomcatTest {
-
-    public TestCPing() {
-        super(AbstractTomcatTest.Protocol.Ajp);
-    }
+public class ApiCompatTest {
 
     @Test
-    public void testCping() throws Exception {
-        final boolean pong = new CPing(2, TimeUnit.SECONDS).execute("localhost", getPort());
-        Assertions.assertTrue(pong);
+    public void test() {
+        javax.servlet.http.HttpServletRequest request = new MockHttpServletRequest();
+        jakarta.servlet.http.HttpServletRequest jakartaRequest = JavaxServletApiCompat.INSTANCE.makeProxy(request);
+        jakartaRequest.setAttribute("test", true);
     }
 }
