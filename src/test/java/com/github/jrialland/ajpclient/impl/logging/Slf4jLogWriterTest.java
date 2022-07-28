@@ -1,5 +1,5 @@
 /* Copyright (c) 2014-2022 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -9,27 +9,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 package com.github.jrialland.ajpclient.impl.logging;
 
+import com.github.jrialland.ajpclient.impl.logging.Slf4jLogWriter.Level;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
-import com.github.jrialland.ajpclient.impl.logging.Slf4jLogWriter.Level;
-
 public class Slf4jLogWriterTest {
 
-	@Test
-	public void doTest() {
+    @Test
+    public void doTest() {
 
-		final Slf4jLogWriter slf4jLogWriter = new Slf4jLogWriter(Level.WARN, LoggerFactory.getLogger("samplelog"));
-		for (final Level level : Level.values()) {
-			slf4jLogWriter.setLevel(level);
-			slf4jLogWriter.write("this is a sample " + level + " log message");
-			slf4jLogWriter.println();
-		}
-		slf4jLogWriter.flush();
-		slf4jLogWriter.close();
-	}
+        final Slf4jLogWriter slf4jLogWriter = new Slf4jLogWriter(Level.WARN, LoggerFactory.getLogger("samplelog"));
+        for (final Level level : Level.values()) {
+            slf4jLogWriter.setLevel(level);
+            slf4jLogWriter.write("this is a sample " + level + " log message");
+            slf4jLogWriter.println();
+        }
+        slf4jLogWriter.flush();
+        slf4jLogWriter.close();
+    }
 }

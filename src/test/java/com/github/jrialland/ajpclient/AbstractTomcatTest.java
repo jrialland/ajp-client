@@ -14,7 +14,6 @@
 package com.github.jrialland.ajpclient;
 
 import com.github.jrialland.ajpclient.servlet.JavaxServletApiCompat;
-import com.github.jrialland.ajpclient.util.ApiCompat;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -56,8 +55,8 @@ public abstract class AbstractTomcatTest {
     private final Logger logger = LoggerFactory.getLogger(getClass().getName());
     private final Map<String, Servlet> servlets = new TreeMap<String, Servlet>();
     private final Protocol protocol;
-    private Tomcat tomcat;
     private final Path tempDir;
+    private Tomcat tomcat;
 
     /**
      * @param protocol wether to serve http or ajp

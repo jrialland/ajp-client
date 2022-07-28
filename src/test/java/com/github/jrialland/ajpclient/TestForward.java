@@ -67,7 +67,7 @@ public class TestForward extends AbstractTomcatTest {
                 }
             }
 
-		});
+        });
 
         addServlet("/rawPost", new HttpServlet() {
 
@@ -77,7 +77,7 @@ public class TestForward extends AbstractTomcatTest {
                 resp.getWriter().print(md5);
             }
 
-		});
+        });
     }
 
     @Test
