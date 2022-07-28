@@ -1,5 +1,5 @@
 /* Copyright (c) 2014-2020 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -9,11 +9,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 package com.github.jrialland.ajpclient;
 
+import com.github.jrialland.ajpclient.pool.Channels;
 import io.netty.channel.Channel;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -23,157 +30,148 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.github.jrialland.ajpclient.pool.Channels;
-
 public class TestForward extends AbstractTomcatTest {
 
-	private static final String DIZZY_MP4_MD5SUM = "iyn+VBY3fk/eVjdWVYMQqg==";
+    private static final String DIZZY_MP4_MD5SUM = "iyn+VBY3fk/eVjdWVYMQqg==";
 
-	private static final Path DIZZY_MP4 = Paths.get("./src/test/resources/dizzy.mp4");
+    private static final Path DIZZY_MP4 = Paths.get("./src/test/resources/dizzy.mp4");
 
-	@SuppressWarnings("serial")
-	public TestForward() {
-		super(Protocol.Ajp);
+    @SuppressWarnings("serial")
+    public TestForward() {
+        super(Protocol.Ajp);
 
-		addStaticResource("/dizzy.mp4", DIZZY_MP4);
+        addStaticResource("/dizzy.mp4", DIZZY_MP4);
 
-		addServlet("/error500", new HttpServlet() {
-			@Override
-			protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
-				throw new ServletException("I just wanted to raise an exception !");
-			}
-		});
+        addServlet("/error500", new HttpServlet() {
+            @Override
+            protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException {
+                throw new ServletException("I just wanted to raise an exception !");
+            }
+        });
 
-		addServlet("/respondError", new HttpServlet() {
-			@Override
-			protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
-				resp.setStatus(Integer.parseInt(req.getParameter("code")));
-			}
-		});
+        addServlet("/respondError", new HttpServlet() {
+            @Override
+            protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+                resp.setStatus(Integer.parseInt(req.getParameter("code")));
+            }
+        });
 
-		addServlet("/formPost", new HttpServlet() {
+        addServlet("/formPost", new HttpServlet() {
 
-			@Override
-			protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
-				final PrintWriter pw = resp.getWriter();
-				for (final String paramName : Collections.list(req.getParameterNames())) {
-					final String paramValue = req.getParameter(paramName);
-					pw.println(paramName + "=" + paramValue);
-				}
-			};
-		});
-
-		addServlet("/rawPost", new HttpServlet() {
-
-			@Override
-			protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
-				final String md5 = computeMd5(req.getInputStream());
-				resp.getWriter().print(md5);
-			};
+            @Override
+            protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+                final PrintWriter pw = resp.getWriter();
+                for (final String paramName : Collections.list(req.getParameterNames())) {
+                    final String paramValue = req.getParameter(paramName);
+                    pw.println(paramName + "=" + paramValue);
+                }
+            }
 
 		});
-	}
 
-	@Test
-	public void testBigFile() throws Exception {
-		final SimpleForwardRequest request = new SimpleForwardRequest();
-		final SimpleForwardResponse response = new SimpleForwardResponse();
-		request.setRequestUri("/dizzy.mp4");
+        addServlet("/rawPost", new HttpServlet() {
 
-		final Channel channel = Channels.connect("localhost", getPort());
-		new Forward(request, response).execute(channel);
+            @Override
+            protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+                final String md5 = computeMd5(req.getInputStream());
+                resp.getWriter().print(md5);
+            }
 
-		Assert.assertEquals(200, response.getStatusCode());
-		Assert.assertTrue(Arrays.asList("OK", "200").contains(response.getStatusMessage()));
-		Assert.assertEquals("1595696", response.getHeaders().get("Content-Length"));
-		Assert.assertEquals(DIZZY_MP4_MD5SUM, computeMd5(response.getResponseBodyAsStream()));
-	}
+		});
+    }
 
-	/**
-	 * The servlet container generates a 'real' 404
-	 *
-	 * @throws Exception
-	 */
-	@Test
-	public void testRealError404() throws Exception {
+    @Test
+    public void testBigFile() throws Exception {
+        final SimpleForwardRequest request = new SimpleForwardRequest();
+        final SimpleForwardResponse response = new SimpleForwardResponse();
+        request.setRequestUri("/dizzy.mp4");
 
-		final SimpleForwardRequest request = new SimpleForwardRequest();
-		final SimpleForwardResponse response = new SimpleForwardResponse();
+        final Channel channel = Channels.connect("localhost", getPort());
+        new Forward(request, response).execute(channel);
 
-		request.setRequestUri("/path/to/nonexisting/file.html");
+        Assertions.assertEquals(200, response.getStatusCode());
+        Assertions.assertTrue(Arrays.asList("OK", "200").contains(response.getStatusMessage()));
+        Assertions.assertEquals("1595696", response.getHeaders().get("Content-Length"));
+        Assertions.assertEquals(DIZZY_MP4_MD5SUM, computeMd5(response.getResponseBodyAsStream()));
+    }
 
-		final Channel channel = Channels.connect("localhost", getPort());
-		new Forward(request, response).execute(channel);
+    /**
+     * The servlet container generates a 'real' 404
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testRealError404() throws Exception {
 
-	}
+        final SimpleForwardRequest request = new SimpleForwardRequest();
+        final SimpleForwardResponse response = new SimpleForwardResponse();
 
-	/**
-	 * The 404 error is generated by the servlet
-	 */
-	@Test
-	public void testServletError404() throws Exception {
-		final SimpleForwardRequest request = new SimpleForwardRequest();
-		final SimpleForwardResponse response = new SimpleForwardResponse();
+        request.setRequestUri("/path/to/nonexisting/file.html");
 
-		request.setRequestUri("/respondError?code=404");
+        final Channel channel = Channels.connect("localhost", getPort());
+        new Forward(request, response).execute(channel);
 
-		final Channel channel = Channels.connect("localhost", getPort());
-		new Forward(request, response).execute(channel);
-	}
+    }
 
-	@Test
-	public void testError500() throws Exception {
-		final SimpleForwardRequest request = new SimpleForwardRequest();
-		final SimpleForwardResponse response = new SimpleForwardResponse();
+    /**
+     * The 404 error is generated by the servlet
+     */
+    @Test
+    public void testServletError404() throws Exception {
+        final SimpleForwardRequest request = new SimpleForwardRequest();
+        final SimpleForwardResponse response = new SimpleForwardResponse();
 
-		request.setRequestUri("/error500");
-		final Channel channel = Channels.connect("localhost", getPort());
-		new Forward(request, response).execute(channel);
-	}
+        request.setRequestUri("/respondError?code=404");
 
-	@Test
-	public void testFormPost() throws Exception {
+        final Channel channel = Channels.connect("localhost", getPort());
+        new Forward(request, response).execute(channel);
+    }
 
-		final SimpleForwardRequest request = new SimpleForwardRequest();
-		final SimpleForwardResponse response = new SimpleForwardResponse();
+    @Test
+    public void testError500() throws Exception {
+        final SimpleForwardRequest request = new SimpleForwardRequest();
+        final SimpleForwardResponse response = new SimpleForwardResponse();
 
-		request.setMethod("POST");
-		request.setRequestUri("/formPost");
-		request.addHeader("Content-Type", "application/x-www-form-urlencoded;Charset=utf-8");
-		request.setRequestBody("Action=GetStatus&SignatureMethod=HmacSHA256&JobId=JOBID&SignatureVersion=2&Version=2010-06-03&Signature=%2FVfkltRBOoSUi1sWxRzN8rw%3D&Timestamp=2011-06-20T22%3A30%3A59.556Z");
+        request.setRequestUri("/error500");
+        final Channel channel = Channels.connect("localhost", getPort());
+        new Forward(request, response).execute(channel);
+    }
 
-		final Channel channel = Channels.connect("localhost", getPort());
-		new Forward(request, response).execute(channel);
+    @Test
+    public void testFormPost() throws Exception {
 
-		Assert.assertEquals(200, response.getStatusCode());
-		Assert.assertTrue(Arrays.asList("OK", "200").contains(response.getStatusMessage()));
-		Assert.assertFalse(response.getResponseBodyAsString().isEmpty());
-	}
+        final SimpleForwardRequest request = new SimpleForwardRequest();
+        final SimpleForwardResponse response = new SimpleForwardResponse();
 
-	@Test
-	public void testRawPost() throws Exception {
-		final SimpleForwardRequest request = new SimpleForwardRequest();
-		final SimpleForwardResponse response = new SimpleForwardResponse();
+        request.setMethod("POST");
+        request.setRequestUri("/formPost");
+        request.addHeader("Content-Type", "application/x-www-form-urlencoded;Charset=utf-8");
+        request.setRequestBody("Action=GetStatus&SignatureMethod=HmacSHA256&JobId=JOBID&SignatureVersion=2&Version=2010-06-03&Signature=%2FVfkltRBOoSUi1sWxRzN8rw%3D&Timestamp=2011-06-20T22%3A30%3A59.556Z");
 
-		request.setMethod("POST");
-		request.setRequestUri("/rawPost");
-		request.setRequestBody(DIZZY_MP4.toUri().toURL().openStream());
-		request.addHeader("Content-Length", Long.toString(Files.size(DIZZY_MP4)));
+        final Channel channel = Channels.connect("localhost", getPort());
+        new Forward(request, response).execute(channel);
 
-		final Channel channel = Channels.connect("localhost", getPort());
-		new Forward(request, response).execute(channel);
+        Assertions.assertEquals(200, response.getStatusCode());
+        Assertions.assertTrue(Arrays.asList("OK", "200").contains(response.getStatusMessage()));
+        Assertions.assertFalse(response.getResponseBodyAsString().isEmpty());
+    }
 
-		Assert.assertEquals(200, response.getStatusCode());
-		Assert.assertTrue(Arrays.asList("OK", "200").contains(response.getStatusMessage()));
-		Assert.assertEquals(DIZZY_MP4_MD5SUM, response.getResponseBodyAsString());
+    @Test
+    public void testRawPost() throws Exception {
+        final SimpleForwardRequest request = new SimpleForwardRequest();
+        final SimpleForwardResponse response = new SimpleForwardResponse();
 
-	}
+        request.setMethod("POST");
+        request.setRequestUri("/rawPost");
+        request.setRequestBody(DIZZY_MP4.toUri().toURL().openStream());
+        request.addHeader("Content-Length", Long.toString(Files.size(DIZZY_MP4)));
+
+        final Channel channel = Channels.connect("localhost", getPort());
+        new Forward(request, response).execute(channel);
+
+        Assertions.assertEquals(200, response.getStatusCode());
+        Assertions.assertTrue(Arrays.asList("OK", "200").contains(response.getStatusMessage()));
+        Assertions.assertEquals(DIZZY_MP4_MD5SUM, response.getResponseBodyAsString());
+
+    }
 }

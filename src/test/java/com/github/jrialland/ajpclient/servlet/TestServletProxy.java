@@ -19,15 +19,15 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.junit.Assert;
-import org.junit.Test;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -47,7 +47,7 @@ public class TestServletProxy extends AbstractTomcatTest {
 			private static final long serialVersionUID = 168417L;
 
 			@Override
-			protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+			protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws IOException {
 				final int nParams = Collections.list(req.getParameterNames()).size();
 				resp.getWriter().print(nParams);
 			}
@@ -58,7 +58,7 @@ public class TestServletProxy extends AbstractTomcatTest {
 			private static final long serialVersionUID = 168411L;
 
 			@Override
-			protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+			protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException {
 				try {
 					final int time = Integer.parseInt(req.getParameter("duration"));
 					Thread.sleep(time);
@@ -78,7 +78,7 @@ public class TestServletProxy extends AbstractTomcatTest {
 		AjpServletProxy.forHost("localhost", getPort()).forward(request, response, 10, TimeUnit.SECONDS, true);
 		if (response.getStatus() != 200) {
 			System.out.println(response.getContentAsString());
-			Assert.fail(response.getErrorMessage());
+			Assertions.fail(response.getErrorMessage());
 		}
 	}
 
@@ -92,7 +92,7 @@ public class TestServletProxy extends AbstractTomcatTest {
 	private static String slurp(final InputStream is) throws IOException {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		final byte[] buff = new byte[4096];
-		int c = 0;
+		int c ;
 		while ((c = is.read(buff)) > -1) {
 			baos.write(buff, 0, c);
 		}
@@ -102,7 +102,7 @@ public class TestServletProxy extends AbstractTomcatTest {
 	@Test
 	public void doTestPost() throws Exception {
 
-		final String cookie = slurp(TestServletProxy.class.getResource("cookie.txt").openStream());
+		final String cookie = slurp(Objects.requireNonNull(TestServletProxy.class.getResource("cookie.txt")).openStream());
 
 		final MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("POST");
@@ -127,10 +127,10 @@ public class TestServletProxy extends AbstractTomcatTest {
 		AjpServletProxy.forHost("localhost", getPort()).forward(request, response);
 		if (response.getStatus() != 200) {
 			System.out.println(response.getContentAsString());
-			Assert.fail(response.getErrorMessage());
+			Assertions.fail(response.getErrorMessage());
 		}
 
-		Assert.assertEquals("5", response.getContentAsString());
+		Assertions.assertEquals("5", response.getContentAsString());
 	}
 
 	/**
@@ -144,16 +144,16 @@ public class TestServletProxy extends AbstractTomcatTest {
 		request.setRequestURI("/dizzy.mp4");
 
 		// generate a request with an enormous 'Cookie' header
-		String cookie = "";
+		StringBuilder cookie = new StringBuilder();
 		final int i = 0;
 		while (cookie.length() < Constants.MAX_MESSAGE_SIZE) {
-			cookie = cookie + "COOKIE" + i + "=foo;";
+			cookie.append("COOKIE").append(i).append("=foo;");
 		}
-		request.addHeader("Cookie", cookie);
+		request.addHeader("Cookie", cookie.toString());
 
 		final MockHttpServletResponse response = new MockHttpServletResponse();
 		AjpServletProxy.forHost("localhost", getPort()).forward(request, response);
-		Assert.assertEquals(HttpServletResponse.SC_BAD_REQUEST, response.getStatus());
+		Assertions.assertEquals(HttpServletResponse.SC_BAD_REQUEST, response.getStatus());
 	}
 
 	@Test
@@ -170,7 +170,7 @@ public class TestServletProxy extends AbstractTomcatTest {
 			request.setContent("duration=1000".getBytes());
 			final MockHttpServletResponse response = new MockHttpServletResponse();
 			AjpServletProxy.forHost("localhost", getPort()).forward(request, response);
-			Assert.assertEquals(HttpServletResponse.SC_OK, response.getStatus());
+			Assertions.assertEquals(HttpServletResponse.SC_OK, response.getStatus());
 		}
 	}
 }

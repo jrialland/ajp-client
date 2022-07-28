@@ -18,10 +18,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.http.HttpServletResponse;
-
-import org.junit.Assert;
-import org.junit.Test;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -53,9 +52,9 @@ public class TestWrongHost {
 		// should finish in less that seconds
 		final int status = statusFuture.get(10, TimeUnit.SECONDS);
 
-		Assert.assertTrue(System.currentTimeMillis() - start < 8000);
+		Assertions.assertTrue(System.currentTimeMillis() - start < 8000);
 
-		Assert.assertEquals(HttpServletResponse.SC_BAD_GATEWAY, status);
+		Assertions.assertEquals(HttpServletResponse.SC_BAD_GATEWAY, status);
 	}
 
 }

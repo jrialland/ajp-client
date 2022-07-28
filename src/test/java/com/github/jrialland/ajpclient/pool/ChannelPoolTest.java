@@ -22,13 +22,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import com.github.jrialland.ajpclient.AbstractTomcatTest;
 import com.github.jrialland.ajpclient.Forward;
 import com.github.jrialland.ajpclient.SimpleForwardRequest;
 import com.github.jrialland.ajpclient.SimpleForwardResponse;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ChannelPoolTest extends AbstractTomcatTest {
 
@@ -75,6 +74,6 @@ public class ChannelPoolTest extends AbstractTomcatTest {
 			}
 		}
 
-		Assert.assertEquals(nTasks, counter.get());
+		Assertions.assertEquals(nTasks, counter.get());
 	}
 }

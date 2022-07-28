@@ -25,11 +25,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.github.jrialland.ajpclient.util.ApiCompat;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -192,7 +192,7 @@ public class AjpServletProxy {
 		@Override
 		@SuppressWarnings("deprecation")
 		public void setStatus(final int code, final String message) {
-			response.setStatus(code, message);
+			response.setStatus(code);
 		}
 	}
 
@@ -236,4 +236,35 @@ public class AjpServletProxy {
 		forward(request, response, -1L, null, reuseConnection);
 	}
 
+	public void forward(final javax.servlet.http.HttpServletRequest request, final javax.servlet.http.HttpServletResponse response) throws IOException, javax.servlet.ServletException {
+		jakarta.servlet.http.HttpServletRequest jakartaRequest = JavaxServletApiCompat.INSTANCE.makeProxy(request);
+		jakarta.servlet.http.HttpServletResponse jakartaResponse = JavaxServletApiCompat.INSTANCE.makeProxy(response);
+		try {
+			forward(jakartaRequest, jakartaResponse);
+		} catch(jakarta.servlet.ServletException e) {
+			throw new javax.servlet.ServletException(e);
+		}
+	}
+
+	public void forward(final javax.servlet.http.HttpServletRequest request, final javax.servlet.http.HttpServletResponse response, final long timeout, final TimeUnit unit,
+						final boolean reuseConnection) throws IOException, javax.servlet.ServletException {
+		jakarta.servlet.http.HttpServletRequest jakartaRequest = JavaxServletApiCompat.INSTANCE.makeProxy(request);
+		jakarta.servlet.http.HttpServletResponse jakartaResponse = JavaxServletApiCompat.INSTANCE.makeProxy(response);
+		try {
+			forward(jakartaRequest, jakartaResponse, timeout, unit, reuseConnection);
+		} catch(jakarta.servlet.ServletException e) {
+			throw new javax.servlet.ServletException(e);
+		}
+	}
+
+	public void forward(final javax.servlet.http.HttpServletRequest request, final javax.servlet.http.HttpServletResponse response, final boolean reuseConnection)
+			throws IOException, javax.servlet.ServletException {
+		jakarta.servlet.http.HttpServletRequest jakartaRequest = JavaxServletApiCompat.INSTANCE.makeProxy(request);
+		jakarta.servlet.http.HttpServletResponse jakartaResponse = JavaxServletApiCompat.INSTANCE.makeProxy(response);
+		try {
+			forward(jakartaRequest, jakartaResponse, reuseConnection);
+		} catch(jakarta.servlet.ServletException e) {
+			throw new javax.servlet.ServletException(e);
+		}
+	}
 }

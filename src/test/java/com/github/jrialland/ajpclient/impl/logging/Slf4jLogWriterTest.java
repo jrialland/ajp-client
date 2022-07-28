@@ -13,7 +13,7 @@
  */
 package com.github.jrialland.ajpclient.impl.logging;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
 import com.github.jrialland.ajpclient.impl.logging.Slf4jLogWriter.Level;

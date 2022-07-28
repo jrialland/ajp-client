@@ -116,8 +116,13 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 		else if (prefix == PREFIX_SEND_BODY_CHUNK) {
 			final int chunkLength = in.readUnsignedShort();
 			if (chunkLength > 0) {
-				getCallback(ctx.channel()).handleSendBodyChunkMessage(in.readBytes(chunkLength));
-
+				ByteBuf buf = in.readBytes(chunkLength);
+				try {
+					getCallback(ctx.channel()).handleSendBodyChunkMessage(buf);
+				} finally {
+					buf.release();
+				}
+				
 				// update expected bytes counter
 
 				if (expectedBytes != null) {

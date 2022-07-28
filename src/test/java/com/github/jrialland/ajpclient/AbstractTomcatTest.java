@@ -1,5 +1,5 @@
 /* Copyright (c) 2014-2020 Julien Rialland <julien.rialland@gmail.com>
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -9,9 +9,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 package com.github.jrialland.ajpclient;
+
+import com.github.jrialland.ajpclient.servlet.JavaxServletApiCompat;
+import com.github.jrialland.ajpclient.util.ApiCompat;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.catalina.Context;
+import org.apache.catalina.LifecycleException;
+import org.apache.catalina.connector.Connector;
+import org.apache.catalina.startup.Tomcat;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.mock.web.MockServletConfig;
+import org.springframework.mock.web.MockServletContext;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -26,242 +44,212 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.util.Base64;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.catalina.Context;
-import org.apache.catalina.LifecycleException;
-import org.apache.catalina.connector.Connector;
-import org.apache.catalina.startup.Tomcat;
-import org.apache.tomcat.util.threads.ThreadPoolExecutor;
-import org.junit.After;
-import org.junit.Before;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.mock.web.MockServletConfig;
-import org.springframework.mock.web.MockServletContext;
 
 /**
  * To be extended by test cases that need to have a real tomcat running
  *
  * @author Julien Rialland <julien.rialland@gmail.com>
- *
  */
 public abstract class AbstractTomcatTest {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    private final Logger logger = LoggerFactory.getLogger(getClass().getName());
+    private final Map<String, Servlet> servlets = new TreeMap<String, Servlet>();
+    private final Protocol protocol;
+    private Tomcat tomcat;
+    private final Path tempDir;
 
-	private Tomcat tomcat;
+    /**
+     * @param protocol wether to serve http or ajp
+     */
+    public AbstractTomcatTest(final Protocol protocol) {
+        this.protocol = protocol;
+        try {
+            tempDir = Files.createTempDirectory("tomcat-test-");
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	private ThreadPoolExecutor executor;
+    public AbstractTomcatTest(final Protocol protocol, final int maxThreads) {
+        this(protocol);
+    }
 
-	private Path tempDir;
+    protected static String computeMd5(final InputStream is) {
+        try {
+            final MessageDigest md5 = MessageDigest.getInstance("md5");
+            final byte[] buf = new byte[1024];
+            int c = 0;
+            while ((c = is.read(buf)) > -1) {
+                md5.update(buf, 0, c);
+            }
+            return new String(Base64.getEncoder().encode(md5.digest()));
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-	private final Map<String, Servlet> servlets = new TreeMap<String, Servlet>();
+    protected static void deleteDirectory(final Path path) throws IOException {
+        Files.walkFileTree(path, new FileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
 
-	protected enum Protocol {
-		Ajp("AJP/1.3"), Http("HTTP/1.1");
+            @Override
+            public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
 
-		private String proto;
+            @Override
+            public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
+                return FileVisitResult.CONTINUE;
+            }
 
-		Protocol(final String proto) {
-			this.proto = proto;
-		}
+            @Override
+            public FileVisitResult visitFileFailed(final Path file, final IOException exc) throws IOException {
+                throw exc;
+            }
+        });
+    }
 
-		public String getScheme() {
-			return proto.replaceAll("/.+$", "://").toLowerCase();
-		}
+    public Tomcat getTomcat() {
+        return tomcat;
+    }
 
-		public String getProto() {
-			return proto;
-		}
-	}
+    public Path getTempDir() {
+        return tempDir;
+    }
 
-	private final Protocol protocol;
+    @BeforeEach
+    public void before() throws LifecycleException, IOException {
 
-	/**
-	 *
-	 * @param protocol
-	 *            wether to serve http or ajp
-	 */
-	public AbstractTomcatTest(final Protocol protocol) {
-		this.protocol = protocol;
-		try {
-			tempDir = Files.createTempDirectory("tomcat-test-");
-		} catch (final IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+        tomcat = new Tomcat();
+        tomcat.setBaseDir(tempDir.toString());
+        tomcat.getHost().setAppBase(tempDir.toString());
+        tomcat.getHost().setAutoDeploy(true);
+        tomcat.getHost().setDeployOnStartup(true);
 
-	public AbstractTomcatTest(final Protocol protocol, final int maxThreads) {
-		this(protocol);
-		executor = new ThreadPoolExecutor(0, maxThreads, 10, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(maxThreads));
-	}
+        final Connector connector = new Connector(protocol.getProto());
 
-	public Tomcat getTomcat() {
-		return tomcat;
-	}
+        connector.setProperty("address", "localhost");
+        if (protocol == Protocol.Ajp) {
+            connector.setProperty("secretRequired", "false"); //optional shared secret header, as described at https://httpd.apache.org/docs/trunk/mod/mod_proxy_ajp.html
+        }
+        connector.setPort(0);
 
-	public Path getTempDir() {
-		return tempDir;
-	}
+        tomcat.setConnector(connector);
+        tomcat.init();
+        tomcat.start();
 
-	@Before
-	public void before() throws LifecycleException, IOException {
+        final Path root = Files.createDirectory(tempDir.resolve("ROOT"));
+        final Context rootContext = tomcat.addContext("", root.toString());
 
-		tomcat = new Tomcat();
-		tomcat.setBaseDir(tempDir.toString());
-		tomcat.getHost().setAppBase(tempDir.toString());
-		tomcat.getHost().setAutoDeploy(true);
-		tomcat.getHost().setDeployOnStartup(true);
+        servlets.entrySet().forEach(entry -> {
+            Servlet servlet = entry.getValue();
+            String path = entry.getKey();
+            Tomcat.addServlet(rootContext, servlet.toString(), servlet).addMapping(path);
+            logger.info(getUri() + entry.getKey() + " => " + entry.getValue());
+        });
 
-		final Connector connector = new Connector(protocol.getProto());
+    }
 
-		if (executor != null) {
-			connector.setAttribute("executor", executor);
-		}
-		connector.setAttribute("address", "localhost");
-		if(protocol == Protocol.Ajp) {
-			connector.setAttribute("secretRequired", "false"); //optional shared secret header, as described at https://httpd.apache.org/docs/trunk/mod/mod_proxy_ajp.html
-		}
-		connector.setPort(0);
+    /**
+     * binds a servlet on the tomcat instance. the 'mapping' has the same format
+     * that the 'servlet-mapping' parameter in web.xml. the path of the servlet
+     * will be relative to /
+     * <p>
+     * {@link Servlet#init(jakarta.servlet.ServletConfig)} is called with a mock
+     * object as parameter.
+     *
+     * @param mapping
+     * @param servlet
+     */
+    protected void addServlet(final String mapping, final Servlet servlet) {
+        final MockServletContext servletContext = new MockServletContext("/");
+        final MockServletConfig config = new MockServletConfig(servletContext, servlet.toString());
+        try {
+            servlet.init(JavaxServletApiCompat.INSTANCE.makeProxy(config));
+        } catch (final Exception e) {
+            throw new IllegalStateException(e);
+        }
+        servlets.put(mapping, servlet);
+    }
 
-		tomcat.setConnector(connector);
-		tomcat.init();
-		tomcat.start();
+    @SuppressWarnings("serial")
+    protected void addStaticResource(final String mapping, final Path file) {
 
-		final Path root = Files.createDirectory(tempDir.resolve("ROOT"));
-		final Context rootContext = tomcat.addContext("", root.toString());
-		for (final Entry<String, Servlet> entry : servlets.entrySet()) {
-			Tomcat.addServlet(rootContext, entry.getValue().toString(), entry.getValue()).addMapping(entry.getKey());
-			logger.info(getUri() + entry.getKey() + " => " + entry.getValue());
-		}
-	}
+        if (!Files.isRegularFile(file)) {
+            final FileNotFoundException fnf = new FileNotFoundException(file.toString());
+            fnf.fillInStackTrace();
+            throw new IllegalArgumentException(fnf);
+        }
 
-	/**
-	 * binds a servlet on the tomcat instance. the 'mapping' has the same format
-	 * that the 'servlet-mapping' parameter in web.xml. the path of the servlet
-	 * will be relative to /
-	 *
-	 * {@link Servlet#init(javax.servlet.ServletConfig)} is called with a mock
-	 * object as parameter.
-	 *
-	 * @param mapping
-	 * @param servlet
-	 */
-	protected void addServlet(final String mapping, final Servlet servlet) {
-		final MockServletContext servletContext = new MockServletContext("/");
-		final MockServletConfig config = new MockServletConfig(servletContext, servlet.toString());
-		try {
-			servlet.init(config);
-		} catch (final Exception e) {
-			throw new IllegalStateException(e);
-		}
-		servlets.put(mapping, servlet);
-	}
+        String md5;
+        try {
+            final InputStream is = file.toUri().toURL().openStream();
+            md5 = computeMd5(is);
+            is.close();
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+        final String fMd5 = md5;
 
-	@SuppressWarnings("serial")
-	protected void addStaticResource(final String mapping, final Path file) {
+        addServlet(mapping, new HttpServlet() {
+            @Override
+            protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+                resp.setContentLength((int) Files.size(file));
+                resp.setHeader("Content-MD5", fMd5);
+                final String mime = Files.probeContentType(file);
+                if (mime != null) {
+                    resp.setContentType(mime);
+                }
+                final OutputStream out = resp.getOutputStream();
+                Files.copy(file, out);
+                out.flush();
+            }
+        });
+    }
 
-		if (!Files.isRegularFile(file)) {
-			final FileNotFoundException fnf = new FileNotFoundException(file.toString());
-			fnf.fillInStackTrace();
-			throw new IllegalArgumentException(fnf);
-		}
+    protected int getPort() {
+        return tomcat.getConnector().getLocalPort();
+    }
 
-		String md5;
-		try {
-			final InputStream is = file.toUri().toURL().openStream();
-			md5 = computeMd5(is);
-			is.close();
-		} catch (final Exception e) {
-			throw new RuntimeException(e);
-		}
-		final String fMd5 = md5;
+    protected String getUri() {
+        final InetAddress addr = (InetAddress) tomcat.getConnector().getProperty("address");
 
-		addServlet(mapping, new HttpServlet() {
-			@Override
-			protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
-				resp.setContentLength((int) Files.size(file));
-				resp.setHeader("Content-MD5", fMd5);
-				final String mime = Files.probeContentType(file);
-				if (mime != null) {
-					resp.setContentType(mime);
-				}
-				final OutputStream out = resp.getOutputStream();
-				Files.copy(file, out);
-				out.flush();
-			}
-		});
-	}
+        return protocol.getScheme() + addr.getHostAddress() + ":" + getPort();
+    }
 
-	protected static String computeMd5(final InputStream is) {
-		try {
-			final MessageDigest md5 = MessageDigest.getInstance("md5");
-			final byte[] buf = new byte[1024];
-			int c = 0;
-			while ((c = is.read(buf)) > -1) {
-				md5.update(buf, 0, c);
-			}
-			return new String(Base64.getEncoder().encode(md5.digest()));
-		} catch (final Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+    @AfterEach
+    public void after() throws IOException {
+        try {
+            tomcat.stop();
+            tomcat.destroy();
+        } catch (final Exception e) {
+            logger.error("could not stop tomcat", e);
+        }
 
-	protected int getPort() {
-		return tomcat.getConnector().getLocalPort();
-	}
+        deleteDirectory(tempDir);
+    }
 
-	protected String getUri() {
-		final InetAddress addr = (InetAddress) tomcat.getConnector().getAttribute("address");
+    protected enum Protocol {
+        Ajp("AJP/1.3"), Http("HTTP/1.1");
 
-		return protocol.getScheme() + addr.getHostAddress() + ":" + getPort();
-	}
+        private final String proto;
 
-	@After
-	public void after() throws IOException {
-		try {
-			tomcat.stop();
-			tomcat.destroy();
-		} catch (final Exception e) {
-			logger.error("could not stop tomcat", e);
-		}
+        Protocol(final String proto) {
+            this.proto = proto;
+        }
 
-		deleteDirectory(tempDir);
-	}
+        public String getScheme() {
+            return proto.replaceAll("/.+$", "://").toLowerCase();
+        }
 
-	protected static void deleteDirectory(final Path path) throws IOException {
-		Files.walkFileTree(path, new FileVisitor<Path>() {
-			@Override
-			public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-				Files.delete(file);
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
-				Files.delete(dir);
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult visitFileFailed(final Path file, final IOException exc) throws IOException {
-				throw exc;
-			}
-		});
-	}
+        public String getProto() {
+            return proto;
+        }
+    }
 }
