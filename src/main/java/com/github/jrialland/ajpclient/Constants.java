@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2020 Julien Rialland <julien.rialland@gmail.com>
+/* Copyright (c) 2014-2022 Julien Rialland <julien.rialland@gmail.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,11 @@ package com.github.jrialland.ajpclient;
  */
 public interface Constants {
 
-	public static final int CPING_TIMEOUT_SECONDS = 5;
+	int CPING_TIMEOUT_SECONDS = 5;
 
-	public static final int MAX_MESSAGE_SIZE = 8 * 1024;// 8k
+	int MAX_MESSAGE_SIZE = 8 * 1024;// 8k
 
-	public static final int MAX_RECEIVE_CHUNK_SIZE = MAX_MESSAGE_SIZE - 5; // (5
+	int MAX_RECEIVE_CHUNK_SIZE = MAX_MESSAGE_SIZE - 5; // (5
 																			// =
 																			// magic(2bytes)
 																			// +
@@ -35,7 +35,7 @@ public interface Constants {
 																			// prefix
 																			// (1byte))
 
-	public static final int MAX_SEND_CHUNK_SIZE = MAX_MESSAGE_SIZE - 6; // (6 =
+	int MAX_SEND_CHUNK_SIZE = MAX_MESSAGE_SIZE - 6; // (6 =
 																		// magic(2bytes)
 																		// +
 																		// packet
@@ -45,25 +45,25 @@ public interface Constants {
 																		// length(2bytes)
 																		// )
 
-	public static final byte[] CLIENT_MAGIC = new byte[] { 0x12, 0x34 };
+	byte[] CLIENT_MAGIC = new byte[] { 0x12, 0x34 };
 
-	public static final byte[] CONTAINER_MAGIC = new byte[] { 0x41, 0x42 };
+	byte[] CONTAINER_MAGIC = new byte[] { 0x41, 0x42 };
 
-	public static final int REQUEST_TERMINATOR = 0xff;
+	int REQUEST_TERMINATOR = 0xff;
 
-	public static final byte PREFIX_FORWARD_REQUEST = 0x02;
+	byte PREFIX_FORWARD_REQUEST = 0x02;
 
-	public static final byte PREFIX_CPING = 0x0a;
+	byte PREFIX_CPING = 0x0a;
 
-	public static final byte PREFIX_CPONG = 9;
+	byte PREFIX_CPONG = 9;
 
-	public static final byte PREFIX_SEND_BODY_CHUNK = 3;
+	byte PREFIX_SEND_BODY_CHUNK = 3;
 
-	public static final byte PREFIX_SEND_HEADERS = 4;
+	byte PREFIX_SEND_HEADERS = 4;
 
-	public static final byte PREFIX_END_RESPONSE = 5;
+	byte PREFIX_END_RESPONSE = 5;
 
-	public static final byte PREFIX_GET_BODY_CHUNK = 6;
+	byte PREFIX_GET_BODY_CHUNK = 6;
 
-	public static final byte[] CPING_MESSAGE = new byte[] { CLIENT_MAGIC[0], CLIENT_MAGIC[1], 0x00, 0x01, PREFIX_CPING };
+	byte[] CPING_MESSAGE = new byte[] { CLIENT_MAGIC[0], CLIENT_MAGIC[1], 0x00, 0x01, PREFIX_CPING };
 }

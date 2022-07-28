@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2020 Julien Rialland <julien.rialland@gmail.com>
+/* Copyright (c) 2014-2022 Julien Rialland <julien.rialland@gmail.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,13 +46,13 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 
 	private Long expectedBytes = null;
 
-	private static enum MessageType {
+	private enum MessageType {
 		SendBodyChunk(PREFIX_SEND_BODY_CHUNK), SendHeaders(PREFIX_SEND_HEADERS), EndResponse(PREFIX_END_RESPONSE), GetBodyChunk(
 				PREFIX_GET_BODY_CHUNK), CPong(PREFIX_CPONG);
 
 		private final int code;
 
-		private static Map<Integer, MessageType> byCodes = new TreeMap<Integer, MessageType>();
+		private static final Map<Integer, MessageType> byCodes = new TreeMap<Integer, MessageType>();
 
 		static {
 			for (final MessageType m : values()) {
@@ -67,7 +67,7 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 		MessageType(final int code) {
 			this.code = code;
 		}
-	};
+	}
 
 	protected AjpMessagesHandlerCallback getCallback(final Channel chann) {
 		return chann.attr(AjpMessagesHandlerCallback.CHANNEL_ATTR).get();
@@ -122,7 +122,7 @@ public class AjpMessagesHandler extends ReplayingDecoder<Void> implements Consta
 				} finally {
 					buf.release();
 				}
-				
+
 				// update expected bytes counter
 
 				if (expectedBytes != null) {

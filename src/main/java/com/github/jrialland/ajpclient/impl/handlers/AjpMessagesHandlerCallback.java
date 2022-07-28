@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2020 Julien Rialland <julien.rialland@gmail.com>
+/* Copyright (c) 2014-2022 Julien Rialland <julien.rialland@gmail.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.github.jrialland.ajpclient.Header;
 
 public interface AjpMessagesHandlerCallback {
 
-	public static AttributeKey<AjpMessagesHandlerCallback> CHANNEL_ATTR = AttributeKey.valueOf(AjpMessagesHandlerCallback.class
+	AttributeKey<AjpMessagesHandlerCallback> CHANNEL_ATTR = AttributeKey.valueOf(AjpMessagesHandlerCallback.class
 			.getSimpleName());
 
 	void handleCPongMessage() throws Exception;

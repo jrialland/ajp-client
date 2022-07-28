@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2020 Julien Rialland <julien.rialland@gmail.com>
+/* Copyright (c) 2014-2022 Julien Rialland <julien.rialland@gmail.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,31 +28,31 @@ public interface ChannelPoolMonitorMBean {
 	 * 
 	 * @return active connections
 	 */
-	public int getActiveConnections();
+    int getActiveConnections();
 
 	/**
 	 * date when the pool has been created
 	 * 
 	 * @return when the pool has been created
 	 */
-	public Date getStartTime();
+    Date getStartTime();
 
 	/**
 	 * target hostname
 	 * 
 	 * @return target hostname
 	 */
-	public String getHost();
+    String getHost();
 
 	/**
 	 * Target tcp port
 	 * 
 	 * @return Target tcp port
 	 */
-	public int getPort();
+    int getPort();
 
 	/**
 	 * Resets all the connections owned by the pool
 	 */
-	public void resetConnections();
+    void resetConnections();
 }

@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2020 Julien Rialland <julien.rialland@gmail.com>
+/* Copyright (c) 2014-2022 Julien Rialland <julien.rialland@gmail.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ public class OutgoingFramesLogger extends ChannelOutboundHandlerAdapter {
 			buf.resetReaderIndex();
 
 		} else {
-			getLog().debug(">>> " + msg.toString());
+			getLog().debug(">>> " + msg);
 		}
 
 		// pass to the next handler in the chain

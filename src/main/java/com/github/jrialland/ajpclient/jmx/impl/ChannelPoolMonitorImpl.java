@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2020 Julien Rialland <julien.rialland@gmail.com>
+/* Copyright (c) 2014-2022 Julien Rialland <julien.rialland@gmail.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +25,9 @@ import com.github.jrialland.ajpclient.pool.ChannelPool;
 
 public class ChannelPoolMonitorImpl extends PoolProviderListenerAdapter implements ChannelPoolMonitorMBean {
 
-	private Date startTime = new Date();
+	private final Date startTime = new Date();
 
-	private ChannelPool channelPool;
+	private final ChannelPool channelPool;
 
 	public ChannelPoolMonitorImpl(ChannelPool channelPool) {
 		this.channelPool = channelPool;

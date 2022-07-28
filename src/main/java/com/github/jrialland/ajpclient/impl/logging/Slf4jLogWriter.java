@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2020 Julien Rialland <julien.rialland@gmail.com>
+/* Copyright (c) 2014-2022 Julien Rialland <julien.rialland@gmail.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 
 public class Slf4jLogWriter extends PrintWriter {
 
-	public static enum Level {
+	public enum Level {
 		TRACE, DEBUG, INFO, WARN, ERROR,
 	}
 
@@ -81,13 +81,13 @@ public class Slf4jLogWriter extends PrintWriter {
 	}
 
 	@Override
-	public void write(final char cbuf[], final int off, final int len) {
+	public void write(final char[] cbuf, final int off, final int len) {
 		buffer.append(cbuf, off, len);
 	}
 
 	@Override
 	public void write(final String str, final int off, final int len) {
-		buffer.append(str.substring(off, off + len));
+		buffer.append(str, off, off + len);
 	}
 
 	@Override
@@ -148,7 +148,7 @@ public class Slf4jLogWriter extends PrintWriter {
 		}
 
 		@Override
-		public void write(final char cbuf[], final int off, final int len) throws IOException {
+		public void write(final char[] cbuf, final int off, final int len) throws IOException {
 			// ignore
 		}
 	}

@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2020 Julien Rialland <julien.rialland@gmail.com>
+/* Copyright (c) 2014-2022 Julien Rialland <julien.rialland@gmail.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public enum RequestHeader {
 
 	private final int code;
 
-	private RequestHeader(final String name, final int code) {
+	RequestHeader(final String name, final int code) {
 		this.name = name;
 		this.code = code;
 	}

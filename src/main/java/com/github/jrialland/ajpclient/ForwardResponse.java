@@ -1,4 +1,4 @@
-/* Copyright (c) 2014-2020 Julien Rialland <julien.rialland@gmail.com>
+/* Copyright (c) 2014-2022 Julien Rialland <julien.rialland@gmail.com>
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public interface ForwardResponse {
 	 * @param code
 	 * @param message
 	 */
-	public void setStatus(int code, String message);
+    void setStatus(int code, String message);
 
 	/**
 	 * response header.
@@ -38,12 +38,12 @@ public interface ForwardResponse {
 	 * @param headerName
 	 * @param value
 	 */
-	public void setHeader(String headerName, String value);
+    void setHeader(String headerName, String value);
 
 	/**
 	 * called when the response body is about to be obtain
 	 */
-	public void atResponseBodyBegin();
+    void atResponseBodyBegin();
 
 	/**
 	 * called the servlet container has finished sending response body
@@ -51,10 +51,10 @@ public interface ForwardResponse {
 	 * @param reuse
 	 * @throws Exception
 	 */
-	public void atResponseBodyEnd(boolean reuse) throws Exception;
+    void atResponseBodyEnd(boolean reuse) throws Exception;
 
 	/**
 	 * gets the outputstream where the response body will be written
 	 */
-	public OutputStream getOutputStream();
+    OutputStream getOutputStream();
 }
