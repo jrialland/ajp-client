@@ -88,7 +88,7 @@
         <logback.version>1.2.11</logback.version>
         <netty.version>4.1.86.Final</netty.version>
         <slf4j.version>1.7.36</slf4j.version>
-        <spring.version>6.0.0</spring.version>
+        <spring.version>6.0.23</spring.version>
         <tomcat.version>10.0.22</tomcat.version>
     </properties>
     <dependencies>
